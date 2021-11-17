@@ -170,7 +170,7 @@ pub contract Artifact: NonFungibleToken {
 					let converter = converterCap.borrow()!
 					if converter.convertTo().contains(type) {
 						let value= self.resolveView(converter.convertFrom())
-						return converter.convert(value)
+						return converter.convert(to: Type<Minter>(), value: value)
 					}
 				}
 			}
@@ -374,7 +374,8 @@ pub contract Artifact: NonFungibleToken {
 
 	pub resource MinterTypeConverter : TypedMetadata.TypeConverter {
 
-		pub fun convert(_ value:AnyStruct) : AnyStruct {
+		pub fun convert(to:Type, value:AnyStruct) : AnyStruct {
+			//here we only convert to a single type so it is ok
 			let converter=value as! MinterPlatform 
 			return Minter(name: converter.name)
 		}

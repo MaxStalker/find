@@ -5,6 +5,9 @@ import Profile from "./Profile.cdc"
 import FIND from "./FIND.cdc"
 import Debug from "./Debug.cdc"
 import Clock from "./Clock.cdc"
+import Art from "./Art.cdc"
+import TypedMetadata from "./TypedMetadata.cdc"
+import Artifact from "./Artifact.cdc"
 
 
 pub contract Admin {
@@ -107,9 +110,6 @@ pub contract Admin {
 		}
 
 
-
-
-		/*
 		pub fun setArtifactTypeConverter(from: Type, converters: [Capability<&{TypedMetadata.TypeConverter}>]) {
 			pre {
 				self.capability != nil: "Cannot create FIND, capability is not set"
@@ -129,7 +129,6 @@ pub contract Admin {
 			return <- 	Art.createArtWithContent(name: name, artist: artist, artistAddress: artistAddress, description: description, url: url, type: type, royalty: royalty, edition: edition, maxEdition: maxEdition)
 		}
 
-		*/
 
 		init() {
 			self.capability = nil

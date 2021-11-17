@@ -72,14 +72,18 @@ transaction(name: String) {
 		profile.addCollection(Profile.ResourceCollection( "FINDBids", bidCollection, Type<&FIND.BidCollection{FIND.BidCollectionPublic}>(), ["find", "bids"]))
 
 		let artifactCollection = acct.getCapability<&{TypedMetadata.ViewResolverCollection}>(Artifact.ArtifactPublicPath)
+		var artifactType=""
 		if !artifactCollection.check() {
 			acct.unlink(Artifact.ArtifactPublicPath)
 			destroy <- acct.load<@AnyResource>(from:Artifact.ArtifactStoragePath)
 
-			acct.save(<- Artifact.createEmptyCollection(), to: Artifact.ArtifactStoragePath)
+			let artifactCollection <-Artifact.createEmptyCollection()
+			artifactType=artifactCollection.getType().identifier
+
+			acct.save(<- artifactCollection, to: Artifact.ArtifactStoragePath)
 			acct.link<&{TypedMetadata.ViewResolverCollection}>( Artifact.ArtifactPublicPath, target: Artifact.ArtifactStoragePath)
 		}
-		//profile.addCollection(Profile.ResourceCollection(name: "artifacts", collection: artifactCollection, type: Type<&{TypedMetadata.ViewResolverCollection}>(), tags: ["artifact", "nft"]))
+		profile.addCollection(Profile.ResourceCollection(name: artifactType, collection: artifactCollection, type: Type<&{TypedMetadata.ViewResolverCollection}>(), tags: ["artifact", "nft"]))
 
     //Create versus art collection if it does not exist and add it
     let artCollectionCap=acct.getCapability<&{TypedMetadata.ViewResolverCollection}>(/public/versusArtViewResolver)

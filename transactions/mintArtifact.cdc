@@ -21,9 +21,12 @@ transaction(name: String) {
 		//this will panic if you cannot borrow it
 		finLeases.borrow(name) 
 
+		let creativeWork=
+		TypedMetadata.CreativeWork(artist:"Neo Motorcycles", name:"Neo Bike ", description: "Bringing the motorcycle world into the 21st century with cutting edge EV technology and advanced performance in a great classic British style, all here in the UK", type:"image")
+		let media=TypedMetadata.Media(data:"https://neomotorcycles.co.uk/assets/img/neo_motorcycle_side.webp" , contentType: "image/webp", protocol: "http")
 		let sharedSchemas : [AnyStruct] = [
-			TypedMetadata.Media(data:"https://neomotorcycles.co.uk/assets/img/neo_motorcycle_side.webp" , contentType: "image/webp", protocol: "http"),
-			TypedMetadata.CreativeWork(artist:"Neo Motorcycles", name:"Neo Bike ", description: "Bringing the motorcycle world into the 21st century with cutting edge EV technology and advanced performance in a great classic British style, all here in the UK", type:"image"),
+			media,
+			creativeWork,
 			TypedMetadata.Royalties(royalty: {"artist" : TypedMetadata.createPercentageRoyalty(user: account.address , cut: 0.05)})
 		]
 
@@ -33,9 +36,20 @@ transaction(name: String) {
 	
 		let cap = account.getCapability<&{TypedMetadata.ViewResolverCollection}>(Artifact.ArtifactPublicPath)
 
-		cap.borrow()!.deposit(token: <- finLeases.mintNFTWithSharedData(name: name, nftName: "Neo Motorcycle 1 of 3", schemas: [ TypedMetadata.Editioned(edition:1, maxEdition: 3)], sharedPointer: sharedPointer))
-		cap.borrow()!.deposit(token: <- finLeases.mintNFTWithSharedData(name: name, nftName: "Neo Motorcycle 2 of 3", schemas: [ TypedMetadata.Editioned(edition:2, maxEdition: 3)], sharedPointer: sharedPointer))
-		cap.borrow()!.deposit(token: <- finLeases.mintNFTWithSharedData(name: name, nftName: "Neo Motorcycle 3 of 3", schemas: [ TypedMetadata.Editioned(edition:3, maxEdition: 3)], sharedPointer: sharedPointer))
+		let collection=cap.borrow()!
+		var i:UInt64=1
+		let maxEdition:UInt64=3
+		while i <= maxEdition {
+
+			let editioned= TypedMetadata.Editioned(edition:i, maxEdition:maxEdition)
+			let description=creativeWork.description.concat( " edition ").concat(i.toString()).concat( " of ").concat(maxEdition.toString())
+			let display= TypedMetadata.Display(name: "Neo Motorcycle".concat(i.toString()).concat(" of ").concat(maxEdition.toString()), thumbnail: media.data, description: description, source: "artifact")
+			let schemas: [AnyStruct] = [ editioned, display]
+			let token <- finLeases.mintNFTWithSharedData(name: name, nftName: "Neo Motorcycle ".concat(i.toString()).concat(" of ").concat(maxEdition.toString()), schemas: schemas, sharedPointer: sharedPointer)
+
+			collection.deposit(token: <- token)
+			i=i+1
+		}
 
 	}
 }

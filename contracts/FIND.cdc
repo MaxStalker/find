@@ -4,6 +4,7 @@ import NonFungibleToken from "./standard/NonFungibleToken.cdc"
 import Profile from "./Profile.cdc"
 import Debug from "./Debug.cdc"
 import Clock from "./Clock.cdc"
+import Artifact from "./Artifact.cdc"
 /*
 
 ///FIND
@@ -387,7 +388,6 @@ pub contract FIND {
 			self.networkWallet=networkWallet
 		}
 
-		/*
 		access(contract) fun createPlatform(_ name: String) : Artifact.MinterPlatform{
 			//TODO: make it possible to set profile
 
@@ -425,7 +425,6 @@ pub contract FIND {
 			}
 			return <- Artifact.mintNFTWithSharedData(platform: self.createPlatform(name), name: nftName, schemas: schemas, sharedPointer: sharedPointer)
 		}
-		*/
 
 
 		pub fun buyAddon(name:String, addon:String, vault: @FUSD.Vault)  {
