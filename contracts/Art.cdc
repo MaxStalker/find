@@ -27,7 +27,7 @@ pub contract Art: NonFungibleToken {
 		//these three are added because I think they will be in the standard. Atleast dieter thinks it will be needed
 		pub let name: String
 		pub let description: String
-		pub let schema: String? 
+		pub let schema: String?
 
 		pub fun content() : String?
 
@@ -46,13 +46,7 @@ pub contract Art: NonFungibleToken {
 		pub let maxEdition: UInt64
 
 
-		init(name: String, 
-		artist: String,
-		artistAddress:Address, 
-		description: String, 
-		type: String, 
-		edition: UInt64,
-		maxEdition: UInt64) {
+		init(name: String, artist: String, artistAddress:Address, description: String, type: String, edition: UInt64, maxEdition: UInt64) {
 			self.name=name
 			self.artist=artist
 			self.artistAddress=artistAddress
@@ -65,7 +59,7 @@ pub contract Art: NonFungibleToken {
 	}
 
 	pub struct Royalty{
-		pub let wallet:Capability<&{FungibleToken.Receiver}> 
+		pub let wallet:Capability<&{FungibleToken.Receiver}>
 		pub let cut: UFix64
 
 		/// @param wallet : The wallet to send royalty too
@@ -83,20 +77,14 @@ pub contract Art: NonFungibleToken {
 
 		pub let schema: String?
 		//content can either be embedded in the NFT as and URL or a pointer to a Content collection to be stored onChain
-		//a pointer will be used for all editions of the same Art when it is editioned 
+		//a pointer will be used for all editions of the same Art when it is editioned
 		pub let contentCapability:Capability<&Content.Collection>?
 		pub let contentId: UInt64?
 		pub let url: String?
 		pub let metadata: Metadata
 		access(account) let royalty: {String: Royalty}
 
-		init(initID: UInt64, 
-		metadata: Metadata,
-		contentCapability:Capability<&Content.Collection>?, 
-		contentId: UInt64?, 
-		url: String?,
-		royalty:{String: Royalty}) {
-
+		init(initID: UInt64, metadata: Metadata, contentCapability:Capability<&Content.Collection>?, contentId: UInt64?, url: String?, royalty:{String: Royalty}) {
 			self.id = initID
 			self.metadata=metadata
 			self.contentCapability=contentCapability
@@ -111,11 +99,11 @@ pub contract Art: NonFungibleToken {
 
 		pub fun getViews() : [Type] {
 			return [
-			Type<String>(), 
-			Type<TypedMetadata.Display>(), 
-			Type<TypedMetadata.Editioned>(), 
+			Type<String>(),
+			Type<TypedMetadata.Display>(),
+			Type<TypedMetadata.Editioned>(),
 			Type<TypedMetadata.CreativeWork>(),
-			Type<TypedMetadata.Royalties>(), 
+			Type<TypedMetadata.Royalties>(),
 			Type<TypedMetadata.Media>()
 			]
 		}
@@ -135,9 +123,8 @@ pub contract Art: NonFungibleToken {
 				return TypedMetadata.Editioned(edition: self.metadata.edition, maxEdition:self.metadata.maxEdition)
 			}
 			if type == Type<TypedMetadata.CreativeWork>() {
-					return TypedMetadata.CreativeWork(artist:self.metadata.artist, name: self.metadata.name, description: self.metadata.description, type:self.metadata.type)
+				return TypedMetadata.CreativeWork(artist:self.metadata.artist, name: self.metadata.name, description: self.metadata.description, type:self.metadata.type)
 			}
-			//we rewrite from the versus standard to the new proposed standard
 			if type == Type<TypedMetadata.Royalties>() {
 				let standardRoyalty : {String: TypedMetadata.Royalty} = {}
 				for royaltyKey in self.royalty.keys {
@@ -151,9 +138,7 @@ pub contract Art: NonFungibleToken {
 				if self.url != nil {
 					return TypedMetadata.Media(data: self.url!, contentType: self.metadata.type, protocol: "http")
 				}
-				//return the content blob
 			}
-
 			return nil
 		}
 
@@ -199,7 +184,7 @@ pub contract Art: NonFungibleToken {
 			if self.ownedNFTs[id] != nil {
 				let ref = &self.ownedNFTs[id] as auth &NonFungibleToken.NFT
 				return ref as! &NFT
-			} 
+			}
 			panic("could not find NFT")
 		}
 
@@ -239,7 +224,7 @@ pub contract Art: NonFungibleToken {
 			return &self.ownedNFTs[id] as &NonFungibleToken.NFT
 		}
 
-		// borrowArt returns a borrowed reference to a Art 
+		// borrowArt returns a borrowed reference to a Art
 		// so that the caller can read data and call methods from it.
 		//
 		// Parameters: id: The ID of the NFT to get the reference for
@@ -295,21 +280,21 @@ pub contract Art: NonFungibleToken {
 
 		if let artCollection= account.getCapability(self.CollectionPublicPath).borrow<&{Art.CollectionPublic}>()  {
 			for id in artCollection.getIDs() {
-				var art=artCollection.borrowArt(id: id) 
+				var art=artCollection.borrowArt(id: id)
 				artData.append(ArtData( metadata: art!.metadata, id: id, cacheKey: art!.cacheKey()))
 			}
 		}
 		return artData
-	} 
+	}
 
 	//This method can only be called from another contract in the same account. In Versus case it is called from the VersusAdmin that is used to administer the solution
 	access(account) fun createArtWithContent(name: String, artist:String, artistAddress:Address, description: String, url: String, type: String, royalty: {String: Royalty}, edition: UInt64, maxEdition: UInt64) : @Art.NFT {
 		var newNFT <- create NFT(
 			initID: Art.totalSupply,
 			metadata: Metadata(
-				name: name, 
+				name: name,
 				artist: artist,
-				artistAddress: artistAddress, 
+				artistAddress: artistAddress,
 				description:description,
 				type:type,
 				edition:edition,
@@ -317,7 +302,7 @@ pub contract Art: NonFungibleToken {
 			),
 			contentCapability:nil,
 			contentId:nil,
-			url:url, 
+			url:url,
 			royalty:royalty
 		)
 		emit Created(id: Art.totalSupply, metadata: newNFT.metadata)
@@ -358,4 +343,4 @@ pub contract Art: NonFungibleToken {
 	}
 }
 
- 
+

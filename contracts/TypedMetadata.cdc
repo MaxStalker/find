@@ -5,25 +5,31 @@ import FUSD from "../contracts/standard/FUSD.cdc"
 
 pub contract TypedMetadata {
 
+	pub resource interface ViewResolver {
+		pub fun getViews() : [Type]
+		pub fun resolveView(_ view:Type): AnyStruct
+	}
+
 	pub resource interface TypeConverter {
-		//this is identifier for now but it should maybe be type
 		pub fun convert(to: Type, value:AnyStruct) : AnyStruct
 		pub fun convertTo() : [Type]
 		pub fun convertFrom() : Type
 	}
 
+	pub struct Display{
+		pub let name: String
+		pub let thumbnail: String
+		pub let description: String
+		pub let source: String
 
-	pub resource interface ViewResolverCollection {
-		pub fun borrowViewResolver(id: UInt64): &{ViewResolver}
-		pub fun deposit(token: @NonFungibleToken.NFT)
-		pub fun getIDs(): [UInt64]
-		pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT
+		init(name:String, thumbnail: String, description: String, source:String) {
+			self.source=source
+			self.name=name
+			self.thumbnail=thumbnail
+			self.description=description
+		}
 	}
 
-	pub resource interface ViewResolver {
-		pub fun getViews() : [Type] 
-		pub fun resolveView(_ view:Type): AnyStruct
-	}
 
 	pub struct Royalties{
 		pub let royalty: { String : Royalty}
@@ -31,10 +37,6 @@ pub contract TypedMetadata {
 			self.royalty=royalty
 		}
 	}
-
-	// A struct for Rarity
-	// A struct for Rarity Data parts like on flovatar
-	// A Display struct for showing the name/thumbnail of something
 
 	/*
 	The idea here is that a platform can register all the types it supporst using the identifier of the type, it would be better if we could use Type as the key here
@@ -76,21 +78,6 @@ pub contract TypedMetadata {
 		}
 	}
 
-	pub struct Display{
-		pub let name: String
-		pub let thumbnail: String
-		pub let description: String
-		pub let source: String
-
-		init(name:String, thumbnail: String, description: String, source:String) {
-			self.source=source
-			self.name=name
-			self.thumbnail=thumbnail
-			self.description=description
-		}
-	}
-
-
 	pub struct CreativeWork {
 		pub let artist: String
 		pub let name: String
@@ -128,5 +115,16 @@ pub contract TypedMetadata {
 		return userRoyalty
 	}
 
+	//This interface is here to get this to work before the standard is merged in Artifact
+	pub resource interface ViewResolverCollection {
+		pub fun borrowViewResolver(id: UInt64): &{ViewResolver}
+		pub fun deposit(token: @NonFungibleToken.NFT)
+		pub fun getIDs(): [UInt64]
+		pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT
+	}
+
+	// A struct for Rarity
+	// A struct for Rarity Data parts like on flovatar
+	// A Display struct for showing the name/thumbnail of something
 
 }
