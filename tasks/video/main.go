@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
 
 	"github.com/bjartek/go-with-the-flow/v2/gwtf"
 )
@@ -10,6 +12,7 @@ func main() {
 
 	//	g := gwtf.NewGoWithTheFlowInMemoryEmulator()
 
+	clear()
 	g := gwtf.NewGoWithTheFlow([]string{"flow.json"}, "emulator", true, 0).InitializeContracts().CreateAccounts("emulator-account")
 
 	//first step create the adminClient as the find user
@@ -39,9 +42,8 @@ func main() {
 		UFix64Argument("100.0").
 		Run()
 
-	fmt.Println("We register a name in find to have a name to show for content adressability")
-	fmt.Scanln()
-	fmt.Println("\033[2J")
+	fmt.Println("We register a name in find to have human readable anchor for  content adressability")
+	fmt.Println("-----------------------------------------------------------------------------------")
 	g.TransactionFromFile("register").
 		SignProposeAndPayAs("user1").
 		StringArgument("bjartek").
@@ -53,8 +55,10 @@ func main() {
 		StringArgument("Find").
 		Run()
 
-	fmt.Println("We mint a piece of versus art. and put into 'bjartek' Art collection")
 	fmt.Scanln()
+	clear()
+	fmt.Println("We mint a piece of versus art. and put into 'bjartek' Art collection")
+	fmt.Println("-----------------------------------------------------------------------------------")
 	g.TransactionFromFile("mintArt").
 		SignProposeAndPayAs("find").
 		AccountArgument("user1").
@@ -68,7 +72,11 @@ func main() {
 		StringArgument("https://res.cloudinary.com/dxra4agvf/image/upload/w_600/v1629285775/maincache5.jpg").
 		RunPrintEventsFull()
 
+	fmt.Scanln()
+	clear()
+
 	fmt.Println("Time to find out what NFTs bjartek has, so we lookup his profile")
+	fmt.Println("-----------------------------------------------------------------------------------")
 	fmt.Println("find.xyz/bjartek")
 	fmt.Scanln()
 	result := g.ScriptFromFile("find-collection").AccountArgument("user1").RunFailOnError()
@@ -79,6 +87,7 @@ func main() {
 	fmt.Println()
 
 	fmt.Println("bjartek has a collection of versus Art nft, so lets look at what is in there")
+	fmt.Println("-----------------------------------------------------------------------------------")
 	fmt.Scanln()
 	fmt.Println("find.xyz/bjartek/A.f8d6e0586b0a20c7.Art.Collection")
 	result = g.ScriptFromFile("find-ids-profile").AccountArgument("user1").StringArgument("A.f8d6e0586b0a20c7.Art.Collection").RunFailOnError()
@@ -86,13 +95,13 @@ func main() {
 	fmt.Println("find.xyz/bjartek/A.f8d6e0586b0a20c7.Art.Collection/0")
 	result = g.ScriptFromFile("find-schemes").AccountArgument("user1").StringArgument("A.f8d6e0586b0a20c7.Art.Collection").UInt64Argument(0).RunFailOnError()
 	fmt.Println(gwtf.CadenceValueToJsonString(result))
-	fmt.Println()
-	fmt.Println()
-	fmt.Println()
-	fmt.Println()
 
 	fmt.Println("There are a single NFT that has some basic types")
-
+	fmt.Println()
+	fmt.Println()
+	fmt.Println()
+	fmt.Println()
+	fmt.Println("-----------------------------------------------------------------------------------")
 	fmt.Scanln()
 	resolveView(g, "String")
 	fmt.Scanln()
@@ -108,5 +117,12 @@ func resolveView(g *gwtf.GoWithTheFlow, view string) {
 	fmt.Printf("find.xyz/bjartek/A.f8d6e0586b0a20c7.Art.Collection/0/%s\n", view)
 	result := g.ScriptFromFile("find").AccountArgument("user1").StringArgument("A.f8d6e0586b0a20c7.Art.Collection").UInt64Argument(0).StringArgument(view).RunFailOnError()
 	fmt.Println(gwtf.CadenceValueToJsonString(result))
+	fmt.Println()
 
+}
+
+func clear() {
+	cmd := exec.Command("clear") //Linux example, its tested
+	cmd.Stdout = os.Stdout
+	cmd.Run()
 }
