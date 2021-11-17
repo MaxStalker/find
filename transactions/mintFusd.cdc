@@ -1,5 +1,3 @@
-
-
 import FungibleToken from "../contracts/standard/FungibleToken.cdc"
 import FUSD from "../contracts/standard/FUSD.cdc"
 
@@ -9,14 +7,9 @@ transaction(recipient: Address, amount: UFix64) {
 
 	prepare(signer: AuthAccount) {
 
-		self.tokenAdmin = signer
-		.borrow<&FUSD.Administrator>(from: /storage/fusdAdmin)
-		?? panic("Signer is not the token admin")
+		self.tokenAdmin = signer.borrow<&FUSD.Administrator>(from: /storage/fusdAdmin) ?? panic("Signer is not the token admin")
 
-		self.tokenReceiver = getAccount(recipient)
-		.getCapability(/public/fusdReceiver)
-		.borrow<&{FungibleToken.Receiver}>()
-		?? panic("Unable to borrow receiver reference")
+		self.tokenReceiver = getAccount(recipient).getCapability(/public/fusdReceiver).borrow<&{FungibleToken.Receiver}>() ?? panic("Unable to borrow receiver reference")
 	}
 
 	execute {

@@ -79,17 +79,20 @@ transaction(name: String) {
 			acct.save(<- Artifact.createEmptyCollection(), to: Artifact.ArtifactStoragePath)
 			acct.link<&{TypedMetadata.ViewResolverCollection}>( Artifact.ArtifactPublicPath, target: Artifact.ArtifactStoragePath)
 		}
-		profile.addCollection(Profile.ResourceCollection(name: "artifacts", collection: artifactCollection, type: Type<&{TypedMetadata.ViewResolverCollection}>(), tags: ["artifact", "nft"]))
+		//profile.addCollection(Profile.ResourceCollection(name: "artifacts", collection: artifactCollection, type: Type<&{TypedMetadata.ViewResolverCollection}>(), tags: ["artifact", "nft"]))
 
     //Create versus art collection if it does not exist and add it
     let artCollectionCap=acct.getCapability<&{TypedMetadata.ViewResolverCollection}>(/public/versusArtViewResolver)
+		var collectionType=""
     if !artCollectionCap.check() {
-      acct.save(<- Art.createEmptyCollection(), to: Art.CollectionStoragePath)
+			let collection <- Art.createEmptyCollection()
+			collectionType=collection.getType().identifier
+      acct.save(<- collection, to: Art.CollectionStoragePath)
 			//NB! this is not how versus current links this, it is just for convenience for this demo
 			acct.link<&{Art.CollectionPublic}>(Art.CollectionPublicPath, target: Art.CollectionStoragePath)
       acct.link<&{TypedMetadata.ViewResolverCollection}>(/public/versusArtViewResolver, target: Art.CollectionStoragePath)
     }
-    profile.addCollection(Profile.ResourceCollection( name: "versus", collection:artCollectionCap, type: Type<&{TypedMetadata.ViewResolverCollection}>(), tags: ["versus", "nft"]))
+    profile.addCollection(Profile.ResourceCollection( name: collectionType, collection:artCollectionCap, type: Type<&{TypedMetadata.ViewResolverCollection}>(), tags: ["versus", "nft"]))
 
 		acct.save(<-profile, to: Profile.storagePath)
 		acct.link<&Profile.User{Profile.Public}>(Profile.publicPath, target: Profile.storagePath)

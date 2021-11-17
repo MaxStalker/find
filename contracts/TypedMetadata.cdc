@@ -76,6 +76,21 @@ pub contract TypedMetadata {
 		}
 	}
 
+	pub struct Display{
+		pub let name: String
+		pub let thumbnail: String
+		pub let description: String
+		pub let source: String
+
+		init(name:String, thumbnail: String, description: String, source:String) {
+			self.source=source
+			self.name=name
+			self.thumbnail=thumbnail
+			self.description=description
+		}
+	}
+
+
 	pub struct CreativeWork {
 		pub let artist: String
 		pub let name: String

@@ -112,7 +112,7 @@ pub contract Art: NonFungibleToken {
 		pub fun getViews() : [Type] {
 			return [
 			Type<String>(), 
-			Type<Artifact.Minter>(), 
+			Type<TypedMetadata.Display>(), 
 			Type<TypedMetadata.Editioned>(), 
 			Type<TypedMetadata.CreativeWork>(),
 			Type<TypedMetadata.Royalties>(), 
@@ -123,12 +123,14 @@ pub contract Art: NonFungibleToken {
 		pub fun resolveView(_ type: Type): AnyStruct {
 
 			if type== Type<String>() {
-				return self.name.concat(" ").concat(self.metadata.edition.toString()).concat(" of ").concat(self.metadata.maxEdition.toString())
+				return self.name.concat(" ").concat(self.metadata.edition.toString()).concat(" of ").concat(self.metadata.maxEdition.toString()).concat(" by ").concat(self.metadata.artist)
 			}
 
-			if type == Type<Artifact.Minter>() {
-				return Artifact.Minter("versus")
+			if type == Type<TypedMetadata.Display>() {
+				let description=self.metadata.description.concat(" by:").concat(self.metadata.artist).concat( " edition ").concat(self.metadata.edition.toString()).concat( " of ").concat(self.metadata.maxEdition.toString())
+				return TypedMetadata.Display(name: self.metadata.name, thumbnail: self.url!, description: description, source: "versus")
 			}
+
 			if type == Type<TypedMetadata.Editioned>() {
 				return TypedMetadata.Editioned(edition: self.metadata.edition, maxEdition:self.metadata.maxEdition)
 			}
