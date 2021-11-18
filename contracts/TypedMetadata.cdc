@@ -10,12 +10,6 @@ pub contract TypedMetadata {
 		pub fun resolveView(_ view:Type): AnyStruct
 	}
 
-	pub resource interface TypeConverter {
-		pub fun convert(to: Type, value:AnyStruct) : AnyStruct
-		pub fun convertTo() : [Type]
-		pub fun convertFrom() : Type
-	}
-
 	pub struct Display{
 		pub let name: String
 		pub let thumbnail: String
@@ -38,18 +32,13 @@ pub contract TypedMetadata {
 		}
 	}
 
-	/*
-	The idea here is that a platform can register all the types it supporst using the identifier of the type, it would be better if we could use Type as the key here
-	*/
 	pub struct Royalty{
 		pub let wallets: { String : Capability<&{FungibleToken.Receiver}>  }
 		pub let cut: UFix64
 
-		//can be percentage
 		pub let percentage: Bool
 		pub let owner: Address
 
-		//Not ideal that type cannot be dictionary key here so we use a identifier
 		init(wallets:{ String: Capability<&{FungibleToken.Receiver}>}, cut: UFix64, percentage: Bool, owner: Address ){
 			self.wallets=wallets
 			self.cut=cut
@@ -102,6 +91,7 @@ pub contract TypedMetadata {
 		}
 	}
 
+	//end
 
 	pub fun createPercentageRoyalty(user:Address, cut: UFix64) : Royalty {
 		let userAccount=getAccount(user)
@@ -127,4 +117,10 @@ pub contract TypedMetadata {
 	// A struct for Rarity Data parts like on flovatar
 	// A Display struct for showing the name/thumbnail of something
 
+
+	pub resource interface TypeConverter {
+		pub fun convert(to: Type, value:AnyStruct) : AnyStruct
+		pub fun convertTo() : [Type]
+		pub fun convertFrom() : Type
+	}
 }

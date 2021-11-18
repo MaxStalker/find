@@ -342,5 +342,3 @@ pub contract Art: NonFungibleToken {
 		emit ContractInitialized()
 	}
 }
-
-
