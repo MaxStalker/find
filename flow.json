@@ -82,11 +82,11 @@
 			"key": "${TESTNET_ACCOUNT}"
 		},
 		"testnet-find": {
-			"address": "aa7481821839f36d",
+			"address": "0x0e7e00f7a09b36fb",
 			"key": "${TESTNET_FIND}"
 		},
 		"testnet-find-admin": {
-			"address": "beea6817f2193da0",
+			"address": "0xe3f907150ec08ca1",
 			"key": "${TESTNET_FIND_ADMIN}"
 		},
 		"testnet-user1": {
@@ -106,10 +106,14 @@
 	"deployments": {
 		"testnet": {
 			"testnet-find": [
-				"Admin",
+				"Artifact",
+				"TypedMetadata",
 				"FIND",
 				"Clock",
-				"Debug"
+				"Debug",
+				"Content",
+				"Art",
+				"Admin"
 			]
 		},
 		"emulator": {

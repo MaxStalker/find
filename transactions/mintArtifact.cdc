@@ -1,10 +1,10 @@
+import FIND from "../contracts/FIND.cdc"
 import NonFungibleToken from "../contracts/standard/NonFungibleToken.cdc"
 import FungibleToken from "../contracts/standard/FungibleToken.cdc"
 import FUSD from "../contracts/standard/FUSD.cdc"
 import FlowToken from "../contracts/standard/FlowToken.cdc"
 import TypedMetadata from "../contracts/TypedMetadata.cdc"
 import Artifact from "../contracts/Artifact.cdc"
-import FIND from "../contracts/FIND.cdc"
 import Profile from "../contracts/Profile.cdc"
 
 transaction(name: String) {
