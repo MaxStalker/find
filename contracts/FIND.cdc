@@ -391,20 +391,12 @@ pub contract FIND {
 		access(contract) fun createPlatform(_ name: String) : Artifact.MinterPlatform{
 			//TODO: make it possible to set profile
 
-			let minterCap =self.owner!.getCapability<&{Profile.Public}>(Profile.publicPath)
-			let platformCap=FIND.account.getCapability<&{Profile.Public}>(Profile.publicPath)
-			//todo check and panic here
-
-			if !minterCap.check() {
-				panic("minter profile is not present")
-
-			}
-
+			let platformCap=FIND.account.getCapability<&{FungibleToken.Receiver}>(/public/VersusProfileFt)
 			if !platformCap.check() {
 				panic("platform cap is not present")
 			}
 
-			return Artifact.MinterPlatform(name:name,  owner: platformCap, minter: minterCap, ownerPercentCut: 0.025)
+			return Artifact.MinterPlatform(name:name, platform: platformCap, platformPercentCut: 0.025)
 		}
 
 		pub fun mintArtifact(name: String, nftName: String, schemas: [AnyStruct]) : @Artifact.NFT {

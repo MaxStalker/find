@@ -25,14 +25,12 @@ pub struct MetadataCollectionItem {
 	pub let id:UInt64
 	pub let name: String
 	pub let url: String
-	pub let ipfsHash: String
 
 
-	init(id:UInt64, name:String, url:String, ipfsHash:String) {
+	init(id:UInt64, name:String, url:String) {
 		self.id=id
 		self.name=name
 		self.url=url
-		self.ipfsHash=ipfsHash
 	}
 
 }
@@ -53,30 +51,9 @@ pub fun main(address: Address) : {String : MetadataCollection} {
 			let items: [MetadataCollectionItem]=[]
 			for id in vrc.getIDs() {
 				let nft=vrc.borrowViewResolver(id: id)
-				var name=""
-				var ipfsHash=""
-				var url=""
-				for view in nft.getViews() {
-
-					if view == Type<String>() {
-					  name= nft.resolveView(view) as! String
-					}
-
-					if view == Type<TypedMetadata.Media>() {
-						let resolve= nft.resolveView(view) 
-
-						let media= resolve as! TypedMetadata.Media
-
-						if media.protocol=="http" {
-							url=media.data
-						}
-
-						if media.protocol=="ipfs" {
-							ipfsHash=media.data
-						}
-					}
-				}
-				items.append(MetadataCollectionItem(id:id, name:name,  url:url, ipfsHash:ipfsHash))
+				//just assume everything supports it
+				let display = nft.resolveView(Type<TypedMetadata.Display>()) as! TypedMetadata.Display
+				items.append(MetadataCollectionItem(id:id, name:display.name,  url:display.thumbnail))
 			}
 			results[name]= MetadataCollection(type: vrc.getType().identifier, items: items)
 		}

@@ -2,7 +2,6 @@ import NonFungibleToken from "./standard/NonFungibleToken.cdc"
 import FungibleToken from "./standard/FungibleToken.cdc"
 import Content from "./Content.cdc"
 import TypedMetadata from "./TypedMetadata.cdc"
-import Artifact from "./Artifact.cdc"
 import FlowToken from "./standard/FlowToken.cdc"
 
 /// A NFT contract to store art
@@ -126,10 +125,10 @@ pub contract Art: NonFungibleToken {
 				return TypedMetadata.CreativeWork(artist:self.metadata.artist, name: self.metadata.name, description: self.metadata.description, type:self.metadata.type)
 			}
 			if type == Type<TypedMetadata.Royalties>() {
-				let standardRoyalty : {String: TypedMetadata.Royalty} = {}
+				let standardRoyalty : {String: TypedMetadata.RoyaltyItem} = {}
 				for royaltyKey in self.royalty.keys {
 					let royalty = self.royalty[royaltyKey]!
-					standardRoyalty[royaltyKey]= TypedMetadata.Royalty(wallets: {Type<@FlowToken.Vault>().identifier : royalty.wallet}, cut: royalty.cut, percentage:true, owner: royalty.wallet.address)
+					standardRoyalty[royaltyKey]= TypedMetadata.RoyaltyItem(receiver : royalty.wallet, cut: royalty.cut)
 				}
 				return TypedMetadata.Royalties(royalty: standardRoyalty)
 			}

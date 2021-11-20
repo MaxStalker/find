@@ -24,10 +24,13 @@ transaction(name: String) {
 		let creativeWork=
 		TypedMetadata.CreativeWork(artist:"Neo Motorcycles", name:"Neo Bike ", description: "Bringing the motorcycle world into the 21st century with cutting edge EV technology and advanced performance in a great classic British style, all here in the UK", type:"image")
 		let media=TypedMetadata.Media(data:"https://neomotorcycles.co.uk/assets/img/neo_motorcycle_side.webp" , contentType: "image/webp", protocol: "http")
+
+
+		let receiver=account.getCapability<&{FungibleToken.Receiver}>(/public/flowTokenReceiver)
 		let sharedSchemas : [AnyStruct] = [
 			media,
 			creativeWork,
-			TypedMetadata.Royalties(royalty: {"artist" : TypedMetadata.createPercentageRoyalty(user: account.address , cut: 0.05)})
+			TypedMetadata.Royalties(royalty: {"artist" : TypedMetadata.RoyaltyItem(receiver: receiver, cut: 0.05)})
 		]
 
 		let sharedNFT <- finLeases.mintArtifact(name: name, nftName: "NeoBike", schemas:sharedSchemas)

@@ -31,7 +31,6 @@ pub contract Artifact: NonFungibleToken {
 			self.result=result
 		}
 	}
-
 	pub resource NFT: NonFungibleToken.INFT, TypedMetadata.ViewResolver {
 		pub let id: UInt64
 		access(contract) let schemas: {String : ViewInfo}
@@ -52,7 +51,6 @@ pub contract Artifact: NonFungibleToken {
 
 			var views : [Type]=[]
 			views.append(Type<MinterPlatform>())
-			views.append(Type<Profiles>())
 			views.append(Type<String>())
 			views.append(Type<TypedMetadata.Royalties>())
 
@@ -85,15 +83,12 @@ pub contract Artifact: NonFungibleToken {
 			return views
 		}
 
+		//TODO: handle different types of FT
 		access(self) fun resolveRoyalties() : TypedMetadata.Royalties {
-			let royalties : {String : TypedMetadata.Royalty } = { }
-			let owner=self.minterPlatform.platform.address
-			let minterProfile=self.minterPlatform.platform.borrow()!
-			let wallets=minterProfile.getWallets()
+			let royalties : {String : TypedMetadata.RoyaltyItem } = { }
 
-
-			if self.schemas.containsKey(Type<TypedMetadata.Royalty>().identifier) {
-				royalties["royalty"] = self.schemas[Type<TypedMetadata.Royalty>().identifier]!.result as! TypedMetadata.Royalty
+			if self.schemas.containsKey(Type<TypedMetadata.RoyaltyItem>().identifier) {
+				royalties["royalty"] = self.schemas[Type<TypedMetadata.RoyaltyItem>().identifier]!.result as! TypedMetadata.RoyaltyItem
 			}
 
 			if self.schemas.containsKey(Type<TypedMetadata.Royalties>().identifier) {
@@ -105,8 +100,8 @@ pub contract Artifact: NonFungibleToken {
 
 			let sharedView= self.sharedPointer?.getViews() ?? []
 
-			if sharedView.contains(Type<TypedMetadata.Royalty>()) {
-				royalties["sharedRoyalty"] = self.sharedPointer!.resolveView(Type<TypedMetadata.Royalty>()) as! TypedMetadata.Royalty
+			if sharedView.contains(Type<TypedMetadata.RoyaltyItem>()) {
+				royalties["sharedRoyalty"] = self.sharedPointer!.resolveView(Type<TypedMetadata.RoyaltyItem>()) as! TypedMetadata.RoyaltyItem
 			}
 
 			if sharedView.contains(Type<TypedMetadata.Royalties>()) {
@@ -118,12 +113,8 @@ pub contract Artifact: NonFungibleToken {
 				}
 			}
 
-			let walletDicts:{ String: Capability<&{FungibleToken.Receiver}>} = {}
-			for wallet in wallets {
-				walletDicts[wallet.accept.identifier] = wallet.receiver
-			}
 
-			let royalty=TypedMetadata.Royalty(wallets: walletDicts, cut: self.minterPlatform.platformPercentCut,  percentage:true, owner:owner)
+			let royalty=TypedMetadata.RoyaltyItem(receiver : self.minterPlatform.platform, cut: self.minterPlatform.platformPercentCut)
 			royalties["platform"]= royalty
 			return TypedMetadata.Royalties(royalties)
 
@@ -141,13 +132,6 @@ pub contract Artifact: NonFungibleToken {
 				return self.resolveRoyalties()
 			}
 
-			if type == Type<Profiles>() {
-				let profiles: {String: Profile.UserProfile} = {}
-				profiles["minter"]=self.minterPlatform.minter.borrow()!.asProfile()
-				profiles["platform"]=self.minterPlatform.platform.borrow()!.asProfile()
-				//TODO: if shared or vanilla has a profile add them here
-				return Profiles(profiles)
-			}
 
 			if type == Type<String>() {
 				return self.name
@@ -155,7 +139,7 @@ pub contract Artifact: NonFungibleToken {
 
 			//TODO: this is very naive, will not work with interface types aso
 			if self.schemas.keys.contains(type.identifier) {
-				return self.schemas[type.identifier]?.result
+				return self.schemas[type.identifier]!.result
 			}
 
 			if let ptr =self.sharedPointer {
@@ -174,16 +158,6 @@ pub contract Artifact: NonFungibleToken {
 					}
 				}
 			}
-			let converters=Artifact.typeConverters[type.identifier]
-			if converters == nil {
-				return nil
-			}
-
-			for converter in converters! {
-
-
-			}
-
 			return nil
 		}
 
@@ -256,14 +230,12 @@ pub contract Artifact: NonFungibleToken {
 
 
 	pub struct MinterPlatform {
-		pub let platform: Capability<&{Profile.Public}>
-		pub let minter: Capability<&{Profile.Public}>
+		pub let platform: Capability<&{FungibleToken.Receiver}>
 		pub let platformPercentCut: UFix64
 		pub let name: String
 
-		init(name: String, platform:Capability<&{Profile.Public}>, minter: Capability<&{Profile.Public}>, platformPercentCut: UFix64) {
+		init(name: String, platform:Capability<&{FungibleToken.Receiver}>, platformPercentCut: UFix64) {
 			self.platform=platform
-			self.minter=minter
 			self.platformPercentCut=platformPercentCut
 			self.name=name
 		}
@@ -326,19 +298,6 @@ pub contract Artifact: NonFungibleToken {
 		return <- create Collection()
 	}
 
-	pub struct Profiles {
-
-		pub let profiles: {String: Profile.UserProfile}
-
-		init(_ profiles : {String: Profile.UserProfile}) {
-			self.profiles=profiles
-		}
-
-		pub fun add(name: String,  profile : Profile.UserProfile) {
-			self.profiles[name]=profile
-		}
-	}
-
 	pub struct Pointer{
 		pub let collection: Capability<&{TypedMetadata.ViewResolverCollection}>
 		pub let id: UInt64
@@ -393,7 +352,7 @@ pub contract Artifact: NonFungibleToken {
 
 	init() {
 		// Initialize the total supply
-		self.totalSupply = 0
+		self.totalSupply=0
 		self.ArtifactPublicPath = /public/artifacts
 		self.ArtifactStoragePath = /storage/artifacts
 		self.typeConverters={}

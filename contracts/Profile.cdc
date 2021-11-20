@@ -156,7 +156,7 @@ pub contract Profile {
         self.allowStoringFollowers=allowStoringFollowers
       }
   }
-  pub resource interface Public {
+	pub resource interface Public {
     pub fun getName(): String
     pub fun getDescription(): String
     pub fun getTags(): [String]

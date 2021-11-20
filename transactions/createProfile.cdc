@@ -100,6 +100,7 @@ transaction(name: String) {
 
 		acct.save(<-profile, to: Profile.storagePath)
 		acct.link<&Profile.User{Profile.Public}>(Profile.publicPath, target: Profile.storagePath)
+		acct.link<&{FungibleToken.Receiver}>(/public/VersusProfileFt, target: Profile.storagePath)
 
 	}
 }
