@@ -936,7 +936,6 @@ pub contract FIND {
 			self.lengthPrices=additionalPrices
 		}
 
-
 		//this method is only called from a lease, and only the owner has that capability
 		access(contract) fun renew(name: String, vault: @FUSD.Vault) {
 			if let lease= self.profiles[name] {

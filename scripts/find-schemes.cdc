@@ -1,7 +1,7 @@
 
 
 import Profile from "../contracts/Profile.cdc"
-import TypedMetadata from "../contracts/TypedMetadata.cdc"
+import NonFungibleToken from "../contracts/standard/NonFungibleToken.cdc"
 
 pub fun main(address: Address, path: String, id:UInt64) : [String] {
 
@@ -13,9 +13,9 @@ pub fun main(address: Address, path: String, id:UInt64) : [String] {
 	.getCollections()
 
 	for col in collections {
-		if col.name == path && col.type == Type<&{TypedMetadata.ViewResolverCollection}>() {
-			let cap = col.collection.borrow<&{TypedMetadata.ViewResolverCollection}>()! as &{TypedMetadata.ViewResolverCollection}
-			let nft=cap.borrowViewResolver(id: id)
+		if col.name == path && col.type == Type<&{NonFungibleToken.CollectionPublic}>() {
+			let cap = col.collection.borrow<&{NonFungibleToken.CollectionPublic}>()! as &{NonFungibleToken.CollectionPublic}
+			let nft=cap.borrowNFT(id: id)
 			let views=nft.getViews()
 			var viewIdentifiers : [String] = []
 			for v in views {

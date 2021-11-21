@@ -6,6 +6,7 @@ import Profile from "../contracts/Profile.cdc"
 import Artifact from "../contracts/Artifact.cdc"
 import Art from "../contracts/Art.cdc"
 import TypedMetadata from "../contracts/TypedMetadata.cdc"
+import NonFungibleToken from "../contracts/standard/NonFungibleToken.cdc"
 
 
 //really not sure on how to input links here.)
@@ -45,14 +46,15 @@ transaction(name: String) {
 		profile.addWallet(fusdWallet)
 
 
-			let flowWallet=Profile.Wallet(
-				name:"Flow", 
-				receiver:acct.getCapability<&{FungibleToken.Receiver}>(/public/flowTokenReceiver),
-				balance:acct.getCapability<&{FungibleToken.Balance}>(/public/flowTokenBalance),
-				accept: Type<@FlowToken.Vault>(),
-				names: ["flow"]
-			)
-			profile.addWallet(flowWallet)
+		let flowWallet=Profile.Wallet(
+			name:"Flow", 
+			receiver:acct.getCapability<&{FungibleToken.Receiver}>(/public/flowTokenReceiver),
+			balance:acct.getCapability<&{FungibleToken.Balance}>(/public/flowTokenBalance),
+			accept: Type<@FlowToken.Vault>(),
+			names: ["flow"]
+		)
+		profile.addWallet(flowWallet)
+
 		let leaseCollection = acct.getCapability<&FIND.LeaseCollection{FIND.LeaseCollectionPublic}>(FIND.LeasePublicPath)
 		if !leaseCollection.check() {
 			acct.unlink(FIND.LeasePublicPath)
@@ -71,7 +73,7 @@ transaction(name: String) {
 		}
 		profile.addCollection(Profile.ResourceCollection( "FINDBids", bidCollection, Type<&FIND.BidCollection{FIND.BidCollectionPublic}>(), ["find", "bids"]))
 
-		let artifactCollection = acct.getCapability<&{TypedMetadata.ViewResolverCollection}>(Artifact.ArtifactPublicPath)
+		let artifactCollection = acct.getCapability<&{NonFungibleToken.CollectionPublic}>(Artifact.ArtifactPublicPath)
 		var artifactType=""
 		if !artifactCollection.check() {
 			acct.unlink(Artifact.ArtifactPublicPath)
@@ -81,22 +83,22 @@ transaction(name: String) {
 			artifactType=artifactCollection.getType().identifier
 
 			acct.save(<- artifactCollection, to: Artifact.ArtifactStoragePath)
-			acct.link<&{TypedMetadata.ViewResolverCollection}>( Artifact.ArtifactPublicPath, target: Artifact.ArtifactStoragePath)
+			acct.link<&{NonFungibleToken.CollectionPublic}>( Artifact.ArtifactPublicPath, target: Artifact.ArtifactStoragePath)
 		}
-		profile.addCollection(Profile.ResourceCollection(name: artifactType, collection: artifactCollection, type: Type<&{TypedMetadata.ViewResolverCollection}>(), tags: ["artifact", "nft"]))
+		profile.addCollection(Profile.ResourceCollection(name: artifactType, collection: artifactCollection, type: Type<&{NonFungibleToken.CollectionPublic}>(), tags: ["artifact", "nft"]))
 
-    //Create versus art collection if it does not exist and add it
-    let artCollectionCap=acct.getCapability<&{TypedMetadata.ViewResolverCollection}>(/public/versusArtViewResolver)
+		//Create versus art collection if it does not exist and add it
+		let artCollectionCap=acct.getCapability<&{NonFungibleToken.CollectionPublic}>(/public/versusArtViewResolver)
 		var collectionType=""
-    if !artCollectionCap.check() {
+		if !artCollectionCap.check() {
 			let collection <- Art.createEmptyCollection()
 			collectionType=collection.getType().identifier
-      acct.save(<- collection, to: Art.CollectionStoragePath)
+			acct.save(<- collection, to: Art.CollectionStoragePath)
 			//NB! this is not how versus current links this, it is just for convenience for this demo
 			acct.link<&{Art.CollectionPublic}>(Art.CollectionPublicPath, target: Art.CollectionStoragePath)
-      acct.link<&{TypedMetadata.ViewResolverCollection}>(/public/versusArtViewResolver, target: Art.CollectionStoragePath)
-    }
-    profile.addCollection(Profile.ResourceCollection( name: collectionType, collection:artCollectionCap, type: Type<&{TypedMetadata.ViewResolverCollection}>(), tags: ["versus", "nft"]))
+			acct.link<&{NonFungibleToken.CollectionPublic}>(/public/versusArtViewResolver, target: Art.CollectionStoragePath)
+		}
+		profile.addCollection(Profile.ResourceCollection( name: collectionType, collection:artCollectionCap, type: Type<&{NonFungibleToken.CollectionPublic}>(), tags: ["versus", "nft"]))
 
 		acct.save(<-profile, to: Profile.storagePath)
 		acct.link<&Profile.User{Profile.Public}>(Profile.publicPath, target: Profile.storagePath)

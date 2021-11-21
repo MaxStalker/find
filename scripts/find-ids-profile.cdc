@@ -1,5 +1,5 @@
 import Profile from "../contracts/Profile.cdc"
-import TypedMetadata from "../contracts/TypedMetadata.cdc"
+import NonFungibleToken from "../contracts/standard/NonFungibleToken.cdc"
 
 pub fun main(address: Address, path: String) : [UInt64] {
 
@@ -11,8 +11,8 @@ pub fun main(address: Address, path: String) : [UInt64] {
 	.getCollections()
 
 	for col in collections {
-		if col.name == path && col.type == Type<&{TypedMetadata.ViewResolverCollection}>() {
-			let cap = col.collection.borrow<&{TypedMetadata.ViewResolverCollection}>()! as &{TypedMetadata.ViewResolverCollection}
+		if col.name == path && col.type == Type<&{NonFungibleToken.CollectionPublic}>() {
+			let cap = col.collection.borrow<&{NonFungibleToken.CollectionPublic}>()!
 			return cap.getIDs()
 		}
 	}

@@ -13,10 +13,10 @@ pub contract Artifact: NonFungibleToken {
 	/*store all valid type converters for Artifacts
 	This is to be able to make the contract compatible with the forthcomming NFT standard. 
 
-	If a Artifact supports a type with the same Identifier as a key here all the TypeConverters convertTo types are added to the list of available types
-	When resolving a type if the Artifact does not itself support this type check if any typeConverters do
+	If a Artifact supports a type with the same Identifier as a key here all the ViewConverters convertTo types are added to the list of available types
+	When resolving a type if the Artifact does not itself support this type check if any viewConverters do
 	*/
-	access(account) var typeConverters: {String: [Capability<&{TypedMetadata.TypeConverter}>]}
+	access(account) var viewConverters: {String: [{TypedMetadata.ViewConverter}]}
 
 	pub event ContractInitialized()
 	pub event Withdraw(id: UInt64, from: Address?)
@@ -52,7 +52,7 @@ pub contract Artifact: NonFungibleToken {
 			var views : [Type]=[]
 			views.append(Type<MinterPlatform>())
 			views.append(Type<String>())
-			views.append(Type<TypedMetadata.Royalties>())
+			views.append(Type<{TypedMetadata.Royalty}>())
 
 			//first shared
 			if let ptr = self.sharedPointer {
@@ -70,29 +70,31 @@ pub contract Artifact: NonFungibleToken {
 				}
 			}
 
+			//ViewConverter: If there are any viewconverters that add new types that can be resolved add them
 			for v in views {
-				if Artifact.typeConverters.containsKey(v.identifier) {
-					for converter in Artifact.typeConverters[v.identifier]! {
-						//this might lead to conflict if not handlded properly
-						views.appendAll(converter.borrow()!.convertTo())
+				if Artifact.viewConverters.containsKey(v.identifier) {
+					for converter in Artifact.viewConverters[v.identifier]! {
+						//I wants sets in cadence...
+						if !views.contains(converter.to){ 
+							views.append(converter.to)
+						}
 					}
 				}
 			}
 
-			//these are locked so cannot override them
 			return views
 		}
 
 		//TODO: handle different types of FT
-		access(self) fun resolveRoyalties() : TypedMetadata.Royalties {
-			let royalties : {String : TypedMetadata.RoyaltyItem } = { }
+		access(self) fun resolveRoyalties() : AnyStruct{TypedMetadata.Royalty} {
+			let royalties : {String : RoyaltyItem } = { }
 
-			if self.schemas.containsKey(Type<TypedMetadata.RoyaltyItem>().identifier) {
-				royalties["royalty"] = self.schemas[Type<TypedMetadata.RoyaltyItem>().identifier]!.result as! TypedMetadata.RoyaltyItem
+			if self.schemas.containsKey(Type<RoyaltyItem>().identifier) {
+				royalties["royalty"] = self.schemas[Type<RoyaltyItem>().identifier]!.result as! RoyaltyItem
 			}
 
-			if self.schemas.containsKey(Type<TypedMetadata.Royalties>().identifier) {
-				let multipleRoylaties=self.schemas[Type<TypedMetadata.Royalties>().identifier]!.result as! TypedMetadata.Royalties
+			if self.schemas.containsKey(Type<Royalties>().identifier) {
+				let multipleRoylaties=self.schemas[Type<Royalties>().identifier]!.result as! Royalties
 				for royalty in multipleRoylaties.royalty.keys {
 					royalties[royalty] =  multipleRoylaties.royalty[royalty]
 				}
@@ -100,12 +102,12 @@ pub contract Artifact: NonFungibleToken {
 
 			let sharedView= self.sharedPointer?.getViews() ?? []
 
-			if sharedView.contains(Type<TypedMetadata.RoyaltyItem>()) {
-				royalties["sharedRoyalty"] = self.sharedPointer!.resolveView(Type<TypedMetadata.RoyaltyItem>()) as! TypedMetadata.RoyaltyItem
+			if sharedView.contains(Type<RoyaltyItem>()) {
+				royalties["sharedRoyalty"] = self.sharedPointer!.resolveView(Type<RoyaltyItem>()) as! RoyaltyItem
 			}
 
-			if sharedView.contains(Type<TypedMetadata.Royalties>()) {
-				let multipleRoylaties=self.sharedPointer!.resolveView(Type<TypedMetadata.Royalties>()) as! TypedMetadata.Royalties
+			if sharedView.contains(Type<Royalties>()) {
+				let multipleRoylaties=self.sharedPointer!.resolveView(Type<Royalties>()) as! Royalties
 				for royalty in multipleRoylaties.royalty.keys {
 					if royalty != "platform"  {
 						royalties["shared-".concat(royalty)] =  multipleRoylaties.royalty[royalty]
@@ -114,9 +116,9 @@ pub contract Artifact: NonFungibleToken {
 			}
 
 
-			let royalty=TypedMetadata.RoyaltyItem(receiver : self.minterPlatform.platform, cut: self.minterPlatform.platformPercentCut)
+			let royalty=RoyaltyItem(receiver : self.minterPlatform.platform, cut: self.minterPlatform.platformPercentCut)
 			royalties["platform"]= royalty
-			return TypedMetadata.Royalties(royalties)
+			return Royalties(royalties)
 
 		}
 
@@ -128,7 +130,7 @@ pub contract Artifact: NonFungibleToken {
 			}
 
 
-			if type == Type<TypedMetadata.Royalties>() {
+			if type == Type<{TypedMetadata.Royalty}>() {
 				return self.resolveRoyalties()
 			}
 
@@ -149,12 +151,12 @@ pub contract Artifact: NonFungibleToken {
 				}
 			}
 
-			for converterValue in Artifact.typeConverters.keys {
-				for converterCap in Artifact.typeConverters[converterValue]! {
-					let converter = converterCap.borrow()!
-					if converter.convertTo().contains(type) {
-						let value= self.resolveView(converter.convertFrom())
-						return converter.convert(to: Type<Minter>(), value: value)
+			//Viewconverter: This is an example on how you as the last step in resolveView can check if there are converters for your type and run them
+			for converterValue in Artifact.viewConverters.keys {
+				for converter in Artifact.viewConverters[converterValue]! {
+					if converter.to == type {
+						let value= self.resolveView(converter.from)
+						return converter.convert(value)
 					}
 				}
 			}
@@ -169,7 +171,7 @@ pub contract Artifact: NonFungibleToken {
 		pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT
 	}
 
-	pub resource Collection: NonFungibleToken.Provider, NonFungibleToken.Receiver, NonFungibleToken.CollectionPublic, CollectionPublic, TypedMetadata.ViewResolverCollection  {
+	pub resource Collection: NonFungibleToken.Provider, NonFungibleToken.Receiver, NonFungibleToken.CollectionPublic, CollectionPublic{
 		// dictionary of NFT conforming tokens
 		// NFT is a resource type with an `UInt64` ID field
 		pub var ownedNFTs: @{UInt64: NonFungibleToken.NFT}
@@ -211,14 +213,6 @@ pub contract Artifact: NonFungibleToken {
 		// so that the caller can read its metadata and call its methods
 		pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT {
 			return &self.ownedNFTs[id] as &NonFungibleToken.NFT
-		}
-
-		pub fun borrowViewResolver(id: UInt64): &{TypedMetadata.ViewResolver} {
-			if self.ownedNFTs[id] != nil {
-				let ref = &self.ownedNFTs[id] as auth &NonFungibleToken.NFT
-				return ref as! &NFT
-			} 
-			panic("could not find NFT")
 		}
 
 
@@ -269,10 +263,8 @@ pub contract Artifact: NonFungibleToken {
 		return <-  nft
 	}
 
-
-
-	access(account) fun setTypeConverter(from: Type, converters: [Capability<&{TypedMetadata.TypeConverter}>]) {
-		Artifact.typeConverters[from.identifier] = converters
+	access(account) fun setViewConverters(from: Type, converters: [AnyStruct{TypedMetadata.ViewConverter}]) {
+		Artifact.viewConverters[from.identifier] = converters
 	}
 
 	//THis is not used right now but might be here for white label things
@@ -299,11 +291,11 @@ pub contract Artifact: NonFungibleToken {
 	}
 
 	pub struct Pointer{
-		pub let collection: Capability<&{TypedMetadata.ViewResolverCollection}>
+		pub let collection: Capability<&{NonFungibleToken.CollectionPublic}>
 		pub let id: UInt64
 		pub let views: [Type]
 
-		init(collection: Capability<&{TypedMetadata.ViewResolverCollection}>, id: UInt64, views: [Type]) {
+		init(collection: Capability<&{NonFungibleToken.CollectionPublic}>, id: UInt64, views: [Type]) {
 			self.collection=collection
 			self.id=id
 			self.views=views
@@ -311,7 +303,7 @@ pub contract Artifact: NonFungibleToken {
 
 
 		pub fun resolveView(_ type: Type) : AnyStruct {
-			return self.collection.borrow()!.borrowViewResolver(id: self.id).resolveView(type)!
+			return self.collection.borrow()!.borrowNFT(id: self.id).resolveView(type)
 		}
 
 		pub fun getViews() : [Type]{
@@ -319,7 +311,7 @@ pub contract Artifact: NonFungibleToken {
 		}
 	}
 
-	/* --- an example typeConverter --*/
+	/* --- an example viewConverter --*/
 	pub struct Minter {
 		pub let name: String
 		init(name:String) {
@@ -327,26 +319,88 @@ pub contract Artifact: NonFungibleToken {
 		}
 	}
 
-	pub fun createNewMinterTypeConverter() : @MinterTypeConverter {
-		return <-  create MinterTypeConverter()
-	}
 
-	pub resource MinterTypeConverter : TypedMetadata.TypeConverter {
+	pub struct MinterViewConverter : TypedMetadata.ViewConverter {
 
-		pub fun convert(to:Type, value:AnyStruct) : AnyStruct {
+		pub let to : Type
+		pub let from: Type
+		pub fun convert(_ value:AnyStruct) : AnyStruct {
 			//here we only convert to a single type so it is ok
 			let converter=value as! MinterPlatform 
 			return Minter(name: converter.name)
+
+		}
+		 init() {
+			self.to = Type<Minter>()
+			self.from= Type<MinterPlatform>()
+		 }
+
+
+	}
+
+	pub struct Royalties : TypedMetadata.Royalty {
+		pub let royalty: { String : RoyaltyItem}
+		init(_ royalty: {String : RoyaltyItem}) {
+			self.royalty=royalty
 		}
 
-		pub fun convertTo() : [Type] {
-			return [Type<Minter>()]
+		pub fun calculateRoyalty(type:Type, amount:UFix64) : UFix64? {
+			var sum:UFix64=0.0
+			for key in self.royalty.keys {
+				let item= self.royalty[key]!
+				sum=sum+amount*item.cut
+			}
+			return sum
+		}
+	
+		pub fun distributeRoyalty(vault: @FungibleToken.Vault) {
+			let totalAmount=vault.balance
+			var sumCuts:UFix64=0.0
+			for key in self.royalty.keys {
+				let item= self.royalty[key]!
+				sumCuts=sumCuts+item.cut
+			}
+
+			let totalKeys=self.royalty.keys.length
+			var currentKey=1
+			var lastReceiver: Capability<&{FungibleToken.Receiver}>?=nil
+			for key in self.royalty.keys {
+				let item= self.royalty[key]!
+				let relativeCut=item.cut / sumCuts
+
+				if currentKey!=totalKeys {
+					item.receiver.borrow()!.deposit(from: <-  vault.withdraw(amount: totalAmount*relativeCut))
+				} else { 
+					//we cannot calculate the last cut as it will have rounding errors
+					lastReceiver=item.receiver
+				}
+				currentKey=currentKey+1
+			}
+			if let r=lastReceiver {
+				r.borrow()!.deposit(from: <-  vault)
+			}else {
+				destroy vault
+			}
 		}
 
-		pub fun convertFrom() :Type {
-			return Type<MinterPlatform>()
+		pub fun displayRoyalty() : String?  {
+			var text=""
+			for key in self.royalty.keys {
+				let item= self.royalty[key]!
+				text.concat(key).concat(" ").concat((item.cut * 100.0).toString()).concat("%\n")
+			}
+			return text
 		}
+	}
 
+	pub struct RoyaltyItem{
+		pub let receiver: Capability<&{FungibleToken.Receiver}> 
+		pub let cut: UFix64
+
+		init(receiver: Capability<&{FungibleToken.Receiver}>, cut: UFix64) {
+			self.cut=cut
+			self.receiver=receiver
+		}
 	}
 
 
@@ -355,7 +409,7 @@ pub contract Artifact: NonFungibleToken {
 		self.totalSupply=0
 		self.ArtifactPublicPath = /public/artifacts
 		self.ArtifactStoragePath = /storage/artifacts
-		self.typeConverters={}
+		self.viewConverters={}
 
 		emit ContractInitialized()
 	}

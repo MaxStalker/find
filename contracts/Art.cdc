@@ -102,7 +102,7 @@ pub contract Art: NonFungibleToken {
 			Type<TypedMetadata.Display>(),
 			Type<TypedMetadata.Editioned>(),
 			Type<TypedMetadata.CreativeWork>(),
-			Type<TypedMetadata.Royalties>(),
+			Type<{TypedMetadata.Royalty}>(),
 			Type<TypedMetadata.Media>()
 			]
 		}
@@ -124,13 +124,8 @@ pub contract Art: NonFungibleToken {
 			if type == Type<TypedMetadata.CreativeWork>() {
 				return TypedMetadata.CreativeWork(artist:self.metadata.artist, name: self.metadata.name, description: self.metadata.description, type:self.metadata.type)
 			}
-			if type == Type<TypedMetadata.Royalties>() {
-				let standardRoyalty : {String: TypedMetadata.RoyaltyItem} = {}
-				for royaltyKey in self.royalty.keys {
-					let royalty = self.royalty[royaltyKey]!
-					standardRoyalty[royaltyKey]= TypedMetadata.RoyaltyItem(receiver : royalty.wallet, cut: royalty.cut)
-				}
-				return TypedMetadata.Royalties(royalty: standardRoyalty)
+			if type == Type<{TypedMetadata.Royalty}>() {
+				return Royalties(self.royalty)
 			}
 
 			if type == Type<TypedMetadata.Media>() {
@@ -140,6 +135,8 @@ pub contract Art: NonFungibleToken {
 			}
 			return nil
 		}
+
+
 
 		pub fun cacheKey() : String {
 			if self.url != nil {
@@ -170,7 +167,7 @@ pub contract Art: NonFungibleToken {
 	}
 
 
-	pub resource Collection: CollectionPublic, NonFungibleToken.Provider, NonFungibleToken.Receiver, NonFungibleToken.CollectionPublic, TypedMetadata.ViewResolverCollection {
+	pub resource Collection: CollectionPublic, NonFungibleToken.Provider, NonFungibleToken.Receiver, NonFungibleToken.CollectionPublic {
 		// dictionary of NFT conforming tokens
 		// NFT is a resource type with an `UInt64` ID field
 		pub var ownedNFTs: @{UInt64: NonFungibleToken.NFT}
@@ -178,15 +175,6 @@ pub contract Art: NonFungibleToken {
 		init () {
 			self.ownedNFTs <- {}
 		}
-
-		pub fun borrowViewResolver(id: UInt64): &{TypedMetadata.ViewResolver} {
-			if self.ownedNFTs[id] != nil {
-				let ref = &self.ownedNFTs[id] as auth &NonFungibleToken.NFT
-				return ref as! &NFT
-			}
-			panic("could not find NFT")
-		}
-
 
 		// withdraw removes an NFT from the collection and moves it to the caller
 		pub fun withdraw(withdrawID: UInt64): @NonFungibleToken.NFT {
@@ -330,6 +318,62 @@ pub contract Art: NonFungibleToken {
 
 		Art.totalSupply = Art.totalSupply + UInt64(1)
 		return <- newNFT
+	}
+
+
+	pub struct Royalties : TypedMetadata.Royalty {
+		pub let royalty: { String : Royalty}
+		init(_ royalty: {String : Royalty}) {
+			self.royalty=royalty
+		}
+
+		pub fun calculateRoyalty(type:Type, amount:UFix64) : UFix64? {
+			var sum:UFix64=0.0
+			for key in self.royalty.keys {
+				let item= self.royalty[key]!
+				sum=sum+amount*item.cut
+			}
+			return sum
+		}
+	
+		pub fun distributeRoyalty(vault: @FungibleToken.Vault) {
+			let totalAmount=vault.balance
+			var sumCuts:UFix64=0.0
+			for key in self.royalty.keys {
+				let item= self.royalty[key]!
+				sumCuts=sumCuts+item.cut
+			}
+
+			let totalKeys=self.royalty.keys.length
+			var currentKey=1
+			var lastReceiver: Capability<&{FungibleToken.Receiver}>?=nil
+			for key in self.royalty.keys {
+				let item= self.royalty[key]!
+				let relativeCut=item.cut / sumCuts
+
+				if currentKey!=totalKeys {
+					item.wallet.borrow()!.deposit(from: <-  vault.withdraw(amount: totalAmount*relativeCut))
+				} else { 
+					//we cannot calculate the last cut as it will have rounding errors
+					lastReceiver=item.wallet
+				}
+				currentKey=currentKey+1
+			}
+			if let r=lastReceiver {
+				r.borrow()!.deposit(from: <-  vault)
+			}else {
+				destroy vault
+			}
+		}
+
+		pub fun displayRoyalty() : String?  {
+			var text=""
+			for key in self.royalty.keys {
+				let item= self.royalty[key]!
+				text.concat(key).concat(" ").concat((item.cut * 100.0).toString()).concat("%\n")
+			}
+			return text
+		}
 	}
 
 

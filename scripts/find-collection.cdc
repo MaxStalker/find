@@ -1,5 +1,5 @@
 import Profile from "../contracts/Profile.cdc"
-import TypedMetadata from "../contracts/TypedMetadata.cdc"
+import NonFungibleToken from "../contracts/standard/NonFungibleToken.cdc"
 
 pub fun main(address: Address) : [String] {
 
@@ -15,7 +15,7 @@ pub fun main(address: Address) : [String] {
 
 	var names:  [String] = []
 	for col in collections {
-		if col.type == Type<&{TypedMetadata.ViewResolverCollection}>() {
+		if col.type == Type<&{NonFungibleToken.CollectionPublic}>() {
 			names.append(col.name)
 		}
 	}

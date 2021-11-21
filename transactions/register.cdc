@@ -5,6 +5,7 @@ import Profile from "../contracts/Profile.cdc"
 import FIND from "../contracts/FIND.cdc"
 import Artifact from "../contracts/Artifact.cdc"
 import TypedMetadata from "../contracts/TypedMetadata.cdc"
+import NonFungibleToken from "../contracts/standard/NonFungibleToken.cdc"
 
 transaction(name: String, amount: UFix64) {
 	prepare(acct: AuthAccount) {
@@ -28,13 +29,13 @@ transaction(name: String, amount: UFix64) {
 
 		}
 
-		let artifactCollection = acct.getCapability<&{TypedMetadata.ViewResolverCollection}>(Artifact.ArtifactPublicPath)
+		let artifactCollection = acct.getCapability<&{NonFungibleToken.CollectionPublic}>(Artifact.ArtifactPublicPath)
 		if !artifactCollection.check() {
 			acct.unlink(Artifact.ArtifactPublicPath)
 			destroy <- acct.load<@AnyResource>(from:Artifact.ArtifactStoragePath)
 
 			acct.save(<- Artifact.createEmptyCollection(), to: Artifact.ArtifactStoragePath)
-			acct.link<&{TypedMetadata.ViewResolverCollection}>( Artifact.ArtifactPublicPath, target: Artifact.ArtifactStoragePath)
+			acct.link<&{NonFungibleToken.CollectionPublic}>( Artifact.ArtifactPublicPath, target: Artifact.ArtifactStoragePath)
 		}
 
 		let bidCollection = acct.getCapability<&FIND.BidCollection{FIND.BidCollectionPublic}>(FIND.BidPublicPath)
@@ -62,10 +63,10 @@ transaction(name: String, amount: UFix64) {
 				accept: Type<@FlowToken.Vault>(),
 				names: ["flow"]
 			)
-	
+
 			profile.addWallet(flowWallet)
 			profile.addWallet(fusdWallet)
-			profile.addCollection(Profile.ResourceCollection(name: "artifacts", collection: artifactCollection, type: Type<&{TypedMetadata.ViewResolverCollection}>(), tags: ["artifact", "nft"]))
+			profile.addCollection(Profile.ResourceCollection(name: "artifacts", collection: artifactCollection, type: Type<&{NonFungibleToken.CollectionPublic}>(), tags: ["artifact", "nft"]))
 			profile.addCollection(Profile.ResourceCollection("FINDLeases",leaseCollection, Type<&FIND.LeaseCollection{FIND.LeaseCollectionPublic}>(), ["find", "leases"]))
 			profile.addCollection(Profile.ResourceCollection("FINDBids", bidCollection, Type<&FIND.BidCollection{FIND.BidCollectionPublic}>(), ["find", "bids"]))
 

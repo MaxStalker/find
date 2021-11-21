@@ -8,8 +8,8 @@ import (
 
 func main() {
 
-	//	g := gwtf.NewGoWithTheFlowInMemoryEmulator()
-	g := gwtf.NewGoWithTheFlowEmulator().InitializeContracts().CreateAccounts("emulator-account")
+	g := gwtf.NewGoWithTheFlowInMemoryEmulator()
+	//	g := gwtf.NewGoWithTheFlowEmulator().InitializeContracts().CreateAccounts("emulator-account")
 
 	//	g.ScriptFromFile("find-list").AccountArgument("user2").Run()
 	//	os.Exit(0)
@@ -119,37 +119,26 @@ func main() {
 	fmt.Println("find.xyz/user2")
 	g.ScriptFromFile("find-collection").AccountArgument("user2").Run()
 
-	fmt.Println("find.xyz/user2/artifacts")
-	g.ScriptFromFile("find-ids-profile").AccountArgument("user2").StringArgument("artifacts").Run()
+	fmt.Println("find.xyz/user2/A.f8d6e0586b0a20c7.Artifact.Collection")
+	g.ScriptFromFile("find-ids-profile").AccountArgument("user2").StringArgument("A.f8d6e0586b0a20c7.Artifact.Collection").Run()
 
-	fmt.Println("find.xyz/user2/artifacts/1")
-	g.ScriptFromFile("find-schemes").AccountArgument("user2").StringArgument("artifacts").UInt64Argument(1).Run()
+	fmt.Println("find.xyz/user2/A.f8d6e0586b0a20c7.Artifact.Collection/1")
+	g.ScriptFromFile("find-schemes").AccountArgument("user2").StringArgument("A.f8d6e0586b0a20c7.Artifact.Collection").UInt64Argument(1).Run()
 
-	fmt.Println("find.xyz/user2/artifacts/1/A.f8d6e0586b0a20c7.TypedMetadata.CreativeWork")
-	g.ScriptFromFile("find").AccountArgument("user2").StringArgument("artifacts").UInt64Argument(1).StringArgument("A.f8d6e0586b0a20c7.TypedMetadata.CreativeWork").Run()
-
-	fmt.Println("find.xyz/user2/artifacts/1/A.f8d6e0586b0a20c7.TypedMetadata.Royalties")
-	g.ScriptFromFile("find").AccountArgument("user2").StringArgument("artifacts").UInt64Argument(1).StringArgument("A.f8d6e0586b0a20c7.TypedMetadata.Royalties").Run()
-
-	fmt.Println("find.xyz/user2/artifacts/1/A.f8d6e0586b0a20c7.TypedMetadata.MinterPlatform")
-	g.ScriptFromFile("find").AccountArgument("user2").StringArgument("artifacts").UInt64Argument(1).StringArgument("A.f8d6e0586b0a20c7.Artifact.MinterPlatform").Run()
-
-	fmt.Println("find.xyz/user2/artifacts/1/A.f8d6e0586b0a20c7.TypedMetadata.Profiles")
-	g.ScriptFromFile("find").AccountArgument("user2").StringArgument("artifacts").UInt64Argument(1).StringArgument("A.f8d6e0586b0a20c7.Artifact.Profiles").Run()
-
-	fmt.Println("find.xyz/user2/artifacts/1/String")
-	g.ScriptFromFile("find").AccountArgument("user2").StringArgument("artifacts").UInt64Argument(1).StringArgument("String").Run()
-
-	fmt.Println("find.xyz/user2/artifacts/1/A.f8d6e0586b0a20c7.TypedMetadata.Media")
-	g.ScriptFromFile("find").AccountArgument("user2").StringArgument("artifacts").UInt64Argument(1).StringArgument("A.f8d6e0586b0a20c7.TypedMetadata.Media").Run()
-
-	fmt.Println("find.xyz/user2/artifacts/1/A.f8d6e0586b0a20c7.TypedMetadata.Editioned")
-	g.ScriptFromFile("find").AccountArgument("user2").StringArgument("artifacts").UInt64Argument(1).StringArgument("A.f8d6e0586b0a20c7.TypedMetadata.Editioned").Run()
-
-	fmt.Println("find.xyz/user2/artifacts/1/A.f8d6e0586b0a20c7.Artifact.Minter")
-	g.ScriptFromFile("find").AccountArgument("user2").StringArgument("artifacts").UInt64Argument(1).StringArgument("A.f8d6e0586b0a20c7.Artifact.Minter").Run()
+	resolveArtifactView(g, "A.f8d6e0586b0a20c7.TypedMetadata.Display")
+	resolveArtifactView(g, "A.f8d6e0586b0a20c7.TypedMetadata.CreativeWork")
+	resolveArtifactView(g, "AnyStruct{A.f8d6e0586b0a20c7.TypedMetadata.Royalty}")
+	resolveArtifactView(g, "A.f8d6e0586b0a20c7.TypedMetadata.Media")
+	resolveArtifactView(g, "A.f8d6e0586b0a20c7.TypedMetadata.Editioned")
+	resolveArtifactView(g, "String")
 
 	g.ScriptFromFile("find-full").AccountArgument("user2").Run()
 	g.ScriptFromFile("find-list").AccountArgument("user2").Run()
+
+}
+func resolveArtifactView(g *gwtf.GoWithTheFlow, view string) {
+	fmt.Printf("find.xyz/bjartek/A.f8d6e0586b0a20c7.Artifact.Collection/1/%s\n", view)
+	result := g.ScriptFromFile("find").AccountArgument("user2").StringArgument("A.f8d6e0586b0a20c7.Artifact.Collection").UInt64Argument(1).StringArgument(view).RunFailOnError()
+	fmt.Println(gwtf.CadenceValueToJsonString(result))
 
 }

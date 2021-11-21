@@ -1,31 +1,40 @@
 import FungibleToken from "../contracts/standard/FungibleToken.cdc"
-import NonFungibleToken from "../contracts/standard/NonFungibleToken.cdc"
 import FlowToken from "../contracts/standard/FlowToken.cdc"
 import FUSD from "../contracts/standard/FUSD.cdc"
 
 pub contract TypedMetadata {
 
+	/// The main ViewResolver that the modified NFT in this repo needs to implement
 	pub resource interface ViewResolver {
 		pub fun getViews() : [Type]
 		pub fun resolveView(_ view:Type): AnyStruct
 	}
 
+	/// This struct interface is used on a contract level to convert from one View to another. 
+	/// See Artifact nft for an example on how to convert one type to another
+	pub struct interface ViewConverter {
+		pub let to: Type
+		pub let from: Type
+
+		pub fun convert(_ value:AnyStruct) : AnyStruct
+	}
+
+
+
+	/// A struct interface for Royalty agreed upon by @dete, @rheaplex, @bjartek 
 	pub struct interface Royalty {
 					
 		/// if nil cannot pay this type
 		/// if not nill withdraw that from main vault and put it into distributeRoyalty 
-
 		pub fun calculateRoyalty(type:Type, amount:UFix64) : UFix64?
 
 		/// call this with a vault containing the amount given in calculate royalty and it will be distributed accordingly
 		pub fun distributeRoyalty(vault: @FungibleToken.Vault) 
 
-
 		/// generate a string that represents all the royalties this NFT has for display purposes
 		pub fun displayRoyalty() : String?  
 
 	}
-
 
 	pub struct Display{
 		pub let name: String
@@ -41,72 +50,7 @@ pub contract TypedMetadata {
 		}
 	}
 
-	pub struct Royalties : Royalty {
-		pub let royalty: { String : RoyaltyItem}
-		init(royalty: {String : RoyaltyItem}) {
-			self.royalty=royalty
-		}
-
-		pub fun calculateRoyalty(type:Type, amount:UFix64) : UFix64? {
-			var sum:UFix64=0.0
-			for key in self.royalty.keys {
-				let item= self.royalty[key]!
-				sum=sum+amount*item.cut
-			}
-			return sum
-		}
-	
-		pub fun distributeRoyalty(vault: @FungibleToken.Vault) {
-			let totalAmount=vault.balance
-			var sumCuts:UFix64=0.0
-			for key in self.royalty.keys {
-				let item= self.royalty[key]!
-				sumCuts=sumCuts+item.cut
-			}
-
-			let totalKeys=self.royalty.keys.length
-			var currentKey=1
-			var lastReceiver: Capability<&{FungibleToken.Receiver}>?=nil
-			for key in self.royalty.keys {
-				let item= self.royalty[key]!
-				let relativeCut=item.cut / sumCuts
-
-				if currentKey!=totalKeys {
-					item.receiver.borrow()!.deposit(from: <-  vault.withdraw(amount: totalAmount*relativeCut))
-				} else { 
-					//we cannot calculate the last cut as it will have rounding errors
-					lastReceiver=item.receiver
-				}
-				currentKey=currentKey+1
-			}
-			if let r=lastReceiver {
-				r.borrow()!.deposit(from: <-  vault)
-			}else {
-				destroy vault
-			}
-		}
-
-		pub fun displayRoyalty() : String?  {
-			var text=""
-			for key in self.royalty.keys {
-				let item= self.royalty[key]!
-				text.concat(key).concat(" ").concat((item.cut * 100.0).toString()).concat("%\n")
-			}
-			return text
-		}
-	}
-
-	pub struct RoyaltyItem{
-		pub let receiver: Capability<&{FungibleToken.Receiver}> 
-		pub let cut: UFix64
-
-		init(receiver: Capability<&{FungibleToken.Receiver}>, cut: UFix64) {
-			self.cut=cut
-			self.receiver=receiver
-		}
-	}
-
-	pub struct Medias {
+  pub struct Medias {
 		pub let media : {String:  Media}
 
 		init(_ items: {String: Media}) {
@@ -115,6 +59,7 @@ pub contract TypedMetadata {
 	}
 
 	pub struct Media {
+		//TODO: should data here be a method? or should there be an method aswell with default impl since you might want lazy laoading content
 		pub let data: String
 		pub let contentType: String
 		pub let protocol: String
@@ -150,24 +95,44 @@ pub contract TypedMetadata {
 		}
 	}
 
-	//end
+	
+	// Would this work for rarity? Hoodlums, flovatar, Basicbeasts? comments?
+	pub struct Rarity{
+		pub let rarity: UFix64
+		pub let rarityName: String
+		pub let parts: {String: RarityPart}
 
-	//This interface is here to get this to work before the standard is merged in Artifact
-	pub resource interface ViewResolverCollection {
-		pub fun borrowViewResolver(id: UInt64): &{ViewResolver}
-		pub fun deposit(token: @NonFungibleToken.NFT)
-		pub fun getIDs(): [UInt64]
-		pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT
+		init(rarity: UFix64, rarityName: String, parts:{String:RarityPart}) {
+			//TODO: pre that rarity cannot be above 100.0
+			self.rarity=rarity
+			self.rarityName=rarityName
+			self.parts=parts
+		}
 	}
 
-	// A struct for Rarity
-	// A struct for Rarity Data parts like on flovatar
-	// A Display struct for showing the name/thumbnail of something
+	pub struct RarityPart{
 
+		pub let rarity: UFix64
+		pub let rarityName: String
+		pub let name: String
 
-	pub resource interface TypeConverter {
-		pub fun convert(to: Type, value:AnyStruct) : AnyStruct
-		pub fun convertTo() : [Type]
-		pub fun convertFrom() : Type
+		init(rarity: UFix64, rarityName: String, name:String) {
+
+			self.rarity=rarity
+			self.rarityName=rarityName
+			self.name=name
+		}
+
+	}
+
+	//Could this work to mark that something is for sale?
+	pub struct ForSale{
+		pub let types: [Type] //these are the types of FT that this token can be sold as
+		pub let price: UFix64
+
+		init(types: [Type], price: UFix64) {
+			self.types=types
+			self.price=price
+		}
 	}
 }

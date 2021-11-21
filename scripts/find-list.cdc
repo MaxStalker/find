@@ -1,14 +1,6 @@
-/*
-- collection
- - type
- - dictionary id ->
-  - name
-  - imageurl
-  - hash
-	*/
-
-import TypedMetadata from "../contracts/TypedMetadata.cdc"
+import NonFungibleToken from "../contracts/standard/NonFungibleToken.cdc"
 import Profile from "../contracts/Profile.cdc"
+import TypedMetadata from "../contracts/TypedMetadata.cdc"
 
 
 pub struct MetadataCollection{
@@ -43,14 +35,14 @@ pub fun main(address: Address) : {String : MetadataCollection} {
 	let collections= getAccount(address).getCapability(Profile.publicPath).borrow<&{Profile.Public}>()!.getCollections()
 
 	for col in collections {
-		if col.type ==Type<&{TypedMetadata.ViewResolverCollection}>() {
+		if col.type ==Type<&{NonFungibleToken.CollectionPublic}>() {
 			let name=col.name
 			let collection : { UInt64 : { String : AnyStruct }}={}
-			let vrc= col.collection.borrow<&{TypedMetadata.ViewResolverCollection}>()!
+			let vrc= col.collection.borrow<&{NonFungibleToken.CollectionPublic}>()!
 
 			let items: [MetadataCollectionItem]=[]
 			for id in vrc.getIDs() {
-				let nft=vrc.borrowViewResolver(id: id)
+				let nft=vrc.borrowNFT(id: id)
 				//just assume everything supports it
 				let display = nft.resolveView(Type<TypedMetadata.Display>()) as! TypedMetadata.Display
 				items.append(MetadataCollectionItem(id:id, name:display.name,  url:display.thumbnail))

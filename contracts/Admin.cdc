@@ -16,7 +16,6 @@ pub contract Admin {
 	pub let AdminProxyPublicPath: PublicPath
 	pub let AdminProxyStoragePath: StoragePath
 
-
 	/// ===================================================================================
 	// Admin things
 	/// ===================================================================================
@@ -110,12 +109,12 @@ pub contract Admin {
 		}
 
 
-		pub fun setArtifactTypeConverter(from: Type, converters: [Capability<&{TypedMetadata.TypeConverter}>]) {
+		pub fun setViewConverters(from: Type, converters: [{TypedMetadata.ViewConverter}]) {
 			pre {
 				self.capability != nil: "Cannot create FIND, capability is not set"
 			}
 
-			Artifact.setTypeConverter(from: from, converters: converters)
+			Artifact.setViewConverters(from: from, converters: converters)
 		}
 
 		pub fun createForge(platform: Artifact.MinterPlatform) : @Artifact.Forge {

@@ -44,6 +44,8 @@ Collection to complete the transfer.
 // The main NFT contract interface. Other NFT contracts will
 // import and implement this interface
 //
+import TypedMetadata from "../TypedMetadata.cdc"
+
 pub contract interface NonFungibleToken {
 
     // The total number of tokens of this type in existence
@@ -75,7 +77,7 @@ pub contract interface NonFungibleToken {
 
     // Requirement that all conforming NFT smart contracts have
     // to define a resource called NFT that conforms to INFT
-    pub resource NFT: INFT {
+    pub resource NFT: INFT, TypedMetadata.ViewResolver {
         pub let id: UInt64
     }
 

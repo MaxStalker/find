@@ -5,10 +5,13 @@ import FIND from "../contracts/FIND.cdc"
 import Profile from "../contracts/Profile.cdc"
 import Artifact from "../contracts/Artifact.cdc"
 import TypedMetadata from "../contracts/TypedMetadata.cdc"
+import NonFungibleToken from "../contracts/standard/NonFungibleToken.cdc"
 
 
 transaction(name:String, description: String, avatar: String, tags:[String], allowStoringFollowers: Bool, links: [{String: String}]) {
 	prepare(acct: AuthAccount) {
+
+
 
 		let profile =acct.borrow<&Profile.User>(from:Profile.storagePath)!
 
@@ -45,9 +48,9 @@ transaction(name:String, description: String, avatar: String, tags:[String], all
 
 		if !hasArtifacts {
 			acct.save(<- Artifact.createEmptyCollection(), to: Artifact.ArtifactStoragePath)
-			acct.link<&{TypedMetadata.ViewResolverCollection}>( Artifact.ArtifactPublicPath, target: Artifact.ArtifactStoragePath)
-			let artifactCollection = acct.getCapability<&{TypedMetadata.ViewResolverCollection}>(Artifact.ArtifactPublicPath)
-			profile.addCollection(Profile.ResourceCollection(name: "artifacts", collection: artifactCollection, type: Type<&{TypedMetadata.ViewResolverCollection}>(), tags: ["artifact", "nft"]))
+			acct.link<&{NonFungibleToken.CollectionPublic}>( Artifact.ArtifactPublicPath, target: Artifact.ArtifactStoragePath)
+			let artifactCollection = acct.getCapability<&{NonFungibleToken.CollectionPublic}>(Artifact.ArtifactPublicPath)
+			profile.addCollection(Profile.ResourceCollection(name: "artifacts", collection: artifactCollection, type: Type<&{NonFungibleToken.CollectionPublic}>(), tags: ["artifact", "nft"]))
 		}
 
 
