@@ -23,7 +23,7 @@ pub contract TypedMetadata {
 
 	/// A struct interface for Royalty agreed upon by @dete, @rheaplex, @bjartek 
 	pub struct interface Royalty {
-					
+
 		/// if nil cannot pay this type
 		/// if not nill withdraw that from main vault and put it into distributeRoyalty 
 		pub fun calculateRoyalty(type:Type, amount:UFix64) : UFix64?
@@ -50,7 +50,7 @@ pub contract TypedMetadata {
 		}
 	}
 
-  pub struct Medias {
+	pub struct Medias {
 		pub let media : {String:  Media}
 
 		init(_ items: {String: Media}) {
@@ -95,7 +95,7 @@ pub contract TypedMetadata {
 		}
 	}
 
-	
+
 	// Would this work for rarity? Hoodlums, flovatar, Basicbeasts? comments?
 	pub struct Rarity{
 		pub let rarity: UFix64
