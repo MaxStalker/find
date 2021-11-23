@@ -19,8 +19,6 @@ pub contract TypedMetadata {
 		pub fun convert(_ value:AnyStruct) : AnyStruct
 	}
 
-
-
 	/// A struct interface for Royalty agreed upon by @dete, @rheaplex, @bjartek 
 	pub struct interface Royalty {
 
@@ -36,6 +34,7 @@ pub contract TypedMetadata {
 
 	}
 
+	// TODO: Should this contain links to your NFT in the originating/source solution? An simple Dictionary of String:String would do
 	pub struct Display{
 		pub let name: String
 		pub let thumbnail: String
@@ -58,6 +57,26 @@ pub contract TypedMetadata {
 		}
 	}
 
+	/*
+	Examples here are:
+	An Image on IPFS:
+	data: QmRAQB6YaCyidP37UdDnjFY5vQuiBrcqdyoW1CuDgwxkD4
+	contentType: image/jpeg
+	protocol: ipfs
+
+	An http image
+	data: https://test.find.xyz/find.png
+	contentType: image/jpeg
+	protocol: http
+
+	An onChain image
+	data: data:image/png;base64,SOMEPNGDATAURI/wD/
+	contentType: image/jpeg
+	protocol: data
+
+	The problem here is that the onChain image can be quite large and you might not want to resolve those every time you fetch down the Meida view. So what if we made a method on the struct that allow you to retrieve the data/content instead?
+
+	*/
 	pub struct Media {
 		//TODO: should data here be a method? or should there be an method aswell with default impl since you might want lazy laoading content
 		pub let data: String
@@ -71,6 +90,7 @@ pub contract TypedMetadata {
 		}
 	}
 
+	// This is an example taken from Versus
 	pub struct CreativeWork {
 		pub let artist: String
 		pub let name: String
@@ -85,6 +105,7 @@ pub contract TypedMetadata {
 		}
 	}
 
+	//Simple struct signaling that this is editioned
 	pub struct Editioned {
 		pub let edition: UInt64
 		pub let maxEdition: UInt64
