@@ -4,10 +4,11 @@
 
 import FungibleToken from "../contracts/standard/FungibleToken.cdc"
 
+//TODO: do we want this to implement FT?
+
 pub contract Profile {
   pub let publicPath: PublicPath
   pub let storagePath: StoragePath
-  
   
   //and event emitted when somebody follows another user
   pub event Follow(follower:Address, following: Address, tags: [String])
@@ -17,6 +18,8 @@ pub contract Profile {
 
   //and event emitted when a user verifies something
   pub event Verification(account:Address, message:String)
+
+	//need more events here
 
   /* 
   Represents a Fungible token wallet with a name and a supported type.
@@ -130,6 +133,9 @@ pub contract Profile {
     pub let following: [FriendStatus]
     pub let followers: [FriendStatus]
     pub let allowStoringFollowers: Bool
+		//todo primary wallet
+		//todo did signatues
+		//todo aliases 
 
     init(
       address: Address,
