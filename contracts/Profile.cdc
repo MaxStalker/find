@@ -5,7 +5,7 @@
 import FungibleToken from "../contracts/standard/FungibleToken.cdc"
 
 //TODO: do we want this to implement FT?
-
+//TODO: implement events
 pub contract Profile {
   pub let publicPath: PublicPath
   pub let storagePath: StoragePath
