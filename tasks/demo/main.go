@@ -8,8 +8,8 @@ import (
 
 func main() {
 
-	g := gwtf.NewGoWithTheFlowInMemoryEmulator()
-	//	g := gwtf.NewGoWithTheFlowEmulator().InitializeContracts().CreateAccounts("emulator-account")
+	//	g := gwtf.NewGoWithTheFlowInMemoryEmulator()
+	g := gwtf.NewGoWithTheFlowEmulator().InitializeContracts().CreateAccounts("emulator-account")
 
 	//	g.ScriptFromFile("find-list").AccountArgument("user2").Run()
 	//	os.Exit(0)

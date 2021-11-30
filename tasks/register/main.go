@@ -101,7 +101,7 @@ func main() {
 	}
 
 	//g := gwtf.NewGoWithTheFlowMainNet()
-	g := gwtf.NewGoWithTheFlowDevNet()
+	g := gwtf.NewGoWithTheFlowEmulator()
 
 	findLinks := cadence.NewArray([]cadence.Value{
 		cadence.NewDictionary([]cadence.KeyValuePair{
@@ -110,15 +110,13 @@ func main() {
 			{Key: cadence.NewString("url"), Value: cadence.NewString("https://twitter.com/findonflow")},
 		})})
 
-	/*
-		g.TransactionFromFile("createProfile").
-			SignProposeAndPayAs("find-admin").
-			StringArgument("ReservedNames").
-			RunPrintEventsFull()
-	*/
+	g.TransactionFromFile("createProfile").
+		SignProposeAndPayAs("find").
+		StringArgument("ReservedNames").
+		RunPrintEventsFull()
 
 	g.TransactionFromFile("editProfile").
-		SignProposeAndPayAs("find-admin").
+		SignProposeAndPayAs("find").
 		StringArgument("ReservedNames").
 		StringArgument(`Reserved names:
 
@@ -143,9 +141,9 @@ Prices:
 		//run transaction against flow
 		names := reservations[idxRange.Low:idxRange.High]
 		g.TransactionFromFile("registerAdmin").
-			SignProposeAndPayAs("find-admin").
+			SignProposeAndPayAs("find").
 			StringArrayArgument(names...).
-			AccountArgument("find-admin").
+			AccountArgument("find").
 			RunPrintEventsFull()
 	}
 }
