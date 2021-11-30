@@ -38,10 +38,12 @@ transaction(name:String, description: String, avatar: String, tags:[String], all
 			}
 		}
 
+
+		let artifactName= Type<@Artifact.Collection>().identifier
 		var hasArtifacts=false
 		let collections=profile.getCollections()
 		for c in collections {
-			if c.name=="artifacts" {
+			if c.name==artifactName {
 				hasArtifacts=true
 			}
 		}
@@ -50,7 +52,7 @@ transaction(name:String, description: String, avatar: String, tags:[String], all
 			acct.save(<- Artifact.createEmptyCollection(), to: Artifact.ArtifactStoragePath)
 			acct.link<&{NonFungibleToken.CollectionPublic}>( Artifact.ArtifactPublicPath, target: Artifact.ArtifactStoragePath)
 			let artifactCollection = acct.getCapability<&{NonFungibleToken.CollectionPublic}>(Artifact.ArtifactPublicPath)
-			profile.addCollection(Profile.ResourceCollection(name: "artifacts", collection: artifactCollection, type: Type<&{NonFungibleToken.CollectionPublic}>(), tags: ["artifact", "nft"]))
+			profile.addCollection(Profile.ResourceCollection(name: artifactName, collection: artifactCollection, type: Type<&{NonFungibleToken.CollectionPublic}>(), tags: ["artifact", "nft"]))
 		}
 
 

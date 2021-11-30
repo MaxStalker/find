@@ -184,12 +184,14 @@ pub contract Profile {
   }
   
   pub resource interface Owner {
+		//TODO; make this longer
     pub fun setName(_ val: String) {
       pre {
         val.length <= 16: "Name must be 16 or less characters"
       }
     }
 
+		//TODO; make this longer
     pub fun setAvatar(_ val: String){
       pre {
         val.length <= 255: "Avatar must be 255 characters or less"
