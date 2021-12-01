@@ -7,6 +7,8 @@ import Clock from "./Clock.cdc"
 import Dandy from "./Dandy.cdc"
 /*
 
+TODO: Look at expireAt in events
+
 ///FIND
 
 ///Flow Integrated Name Directory - A naming service on flow,
@@ -37,7 +39,7 @@ pub contract FIND {
 	pub event Moved(name: String, previousOwner: Address, newOwner: Address, expireAt: UFix64)
 
 	/// Emitted when a name is sold to a new owner
-	pub event Sold(name: String, previousOwner: Address, newOwner: Address, expireAt: UFix64, amount: UFix64)
+	pub event Sold(name: String, previousOwner: Address, newOwner: Address, expireAt: UFix64, amount: UFix64, soldAt:String)
 
 	/// Emitted when a name is explicistly put up for sale
 	pub event ForSale(name: String, owner: Address, expireAt: UFix64, directSellPrice: UFix64, active: Bool)
@@ -671,7 +673,7 @@ pub contract FIND {
 				let newProfile= getAccount(cb.address).getCapability<&{Profile.Public}>(Profile.publicPath)
 				let soldFor=offer.getBalance(name)
 				//move the token to the new profile
-				emit Sold(name: name, previousOwner:lease.owner!.address, newOwner: newProfile.address, expireAt: lease.getLeaseExpireTime(), amount: soldFor)
+				emit Sold(name: name, previousOwner:lease.owner!.address, newOwner: newProfile.address, expireAt: lease.getLeaseExpireTime(), amount: soldFor, soldAt: "directSale")
 				lease.move(profile: newProfile)
 
 				let token <- self.leases.remove(key: name)!
@@ -708,7 +710,7 @@ pub contract FIND {
 			let newProfile= getAccount(auction.latestBidCallback.address).getCapability<&{Profile.Public}>(Profile.publicPath)
 
 			//move the token to the new profile
-			emit Sold(name: name, previousOwner:lease.owner!.address, newOwner: newProfile.address, expireAt: lease.getLeaseExpireTime(), amount: soldFor)
+			emit Sold(name: name, previousOwner:lease.owner!.address, newOwner: newProfile.address, expireAt: lease.getLeaseExpireTime(), amount: soldFor, soldAt: "auction")
 			lease.move(profile: newProfile)
 
 			let token <- self.leases.remove(key: name)!

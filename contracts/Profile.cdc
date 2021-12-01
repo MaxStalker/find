@@ -4,7 +4,6 @@
 
 import FungibleToken from "../contracts/standard/FungibleToken.cdc"
 
-//TODO: do we want this to implement FT?
 //TODO: implement events
 pub contract Profile {
   pub let publicPath: PublicPath
@@ -92,6 +91,7 @@ pub contract Profile {
        self.type=type
      }
   }
+
   /*
     Information about a connection between one profile and another.
    */
@@ -125,6 +125,7 @@ pub contract Profile {
     pub let address: Address
     pub let name: String
     pub let description: String
+		//TODO: Gender
     pub let tags: [String]
     pub let avatar: String
     pub let links: [Link]
@@ -133,9 +134,7 @@ pub contract Profile {
     pub let following: [FriendStatus]
     pub let followers: [FriendStatus]
     pub let allowStoringFollowers: Bool
-		//todo primary wallet
 		//todo did signatues
-		//todo aliases 
 
     init(
       address: Address,
@@ -201,12 +200,14 @@ pub contract Profile {
     pub fun setTags(_ val: [String])  {
        pre {
         Profile.verifyTags(tags: val, tagLength:10, tagSize:3) : "cannot have more then 3 tags of length 10"
+				//TOOD: more tags, longer
       }
     }   
 
     //validate length of description to be 255 or something?
     pub fun setDescription(_ val: String) {
       pre {
+				//TODO: make longer
         val.length <= 255: "Description must be 255 characters or less"
       }
     }
