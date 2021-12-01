@@ -99,9 +99,9 @@ func main() {
 
 	g.ScriptFromFile("address_status").AccountArgument("user2").Run()
 
-	g.TransactionFromFile("buyAddon").SignProposeAndPayAs("user2").StringArgument("user1").StringArgument("artifact").UFix64Argument("50.0").RunPrintEventsFull()
+	g.TransactionFromFile("buyAddon").SignProposeAndPayAs("user2").StringArgument("user1").StringArgument("dandy").UFix64Argument("50.0").RunPrintEventsFull()
 
-	g.TransactionFromFile("mintArtifact").SignProposeAndPayAs("user2").StringArgument("user1").RunPrintEventsFull()
+	g.TransactionFromFile("mintDandy").SignProposeAndPayAs("user2").StringArgument("user1").RunPrintEventsFull()
 
 	g.TransactionFromFile("mintArt").
 		SignProposeAndPayAs("find").
@@ -119,26 +119,26 @@ func main() {
 	fmt.Println("find.xyz/user2")
 	g.ScriptFromFile("find-collection").AccountArgument("user2").Run()
 
-	fmt.Println("find.xyz/user2/A.f8d6e0586b0a20c7.Artifact.Collection")
-	g.ScriptFromFile("find-ids-profile").AccountArgument("user2").StringArgument("A.f8d6e0586b0a20c7.Artifact.Collection").Run()
+	fmt.Println("find.xyz/user2/A.f8d6e0586b0a20c7.Dandy.Collection")
+	g.ScriptFromFile("find-ids-profile").AccountArgument("user2").StringArgument("A.f8d6e0586b0a20c7.Dandy.Collection").Run()
 
-	fmt.Println("find.xyz/user2/A.f8d6e0586b0a20c7.Artifact.Collection/1")
-	g.ScriptFromFile("find-schemes").AccountArgument("user2").StringArgument("A.f8d6e0586b0a20c7.Artifact.Collection").UInt64Argument(1).Run()
+	fmt.Println("find.xyz/user2/A.f8d6e0586b0a20c7.Dandy.Collection/1")
+	g.ScriptFromFile("find-schemes").AccountArgument("user2").StringArgument("A.f8d6e0586b0a20c7.Dandy.Collection").UInt64Argument(1).Run()
 
-	resolveArtifactView(g, "A.f8d6e0586b0a20c7.TypedMetadata.Display")
-	resolveArtifactView(g, "A.f8d6e0586b0a20c7.TypedMetadata.CreativeWork")
-	resolveArtifactView(g, "AnyStruct{A.f8d6e0586b0a20c7.TypedMetadata.Royalty}")
-	resolveArtifactView(g, "A.f8d6e0586b0a20c7.TypedMetadata.Media")
-	resolveArtifactView(g, "A.f8d6e0586b0a20c7.TypedMetadata.Editioned")
-	resolveArtifactView(g, "String")
+	resolveDandyView(g, "A.f8d6e0586b0a20c7.TypedMetadata.Display")
+	resolveDandyView(g, "A.f8d6e0586b0a20c7.TypedMetadata.CreativeWork")
+	resolveDandyView(g, "AnyStruct{A.f8d6e0586b0a20c7.TypedMetadata.Royalty}")
+	resolveDandyView(g, "A.f8d6e0586b0a20c7.TypedMetadata.Media")
+	resolveDandyView(g, "A.f8d6e0586b0a20c7.TypedMetadata.Editioned")
+	resolveDandyView(g, "String")
 
 	g.ScriptFromFile("find-full").AccountArgument("user2").Run()
 	g.ScriptFromFile("find-list").AccountArgument("user2").Run()
 
 }
-func resolveArtifactView(g *gwtf.GoWithTheFlow, view string) {
-	fmt.Printf("find.xyz/bjartek/A.f8d6e0586b0a20c7.Artifact.Collection/1/%s\n", view)
-	result := g.ScriptFromFile("find").AccountArgument("user2").StringArgument("A.f8d6e0586b0a20c7.Artifact.Collection").UInt64Argument(1).StringArgument(view).RunFailOnError()
+func resolveDandyView(g *gwtf.GoWithTheFlow, view string) {
+	fmt.Printf("find.xyz/bjartek/A.f8d6e0586b0a20c7.Dandy.Collection/1/%s\n", view)
+	result := g.ScriptFromFile("find").AccountArgument("user2").StringArgument("A.f8d6e0586b0a20c7.Dandy.Collection").UInt64Argument(1).StringArgument(view).RunFailOnError()
 	fmt.Println(gwtf.CadenceValueToJsonString(result))
 
 }

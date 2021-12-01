@@ -7,7 +7,7 @@ import Debug from "./Debug.cdc"
 import Clock from "./Clock.cdc"
 import Art from "./Art.cdc"
 import TypedMetadata from "./TypedMetadata.cdc"
-import Artifact from "./Artifact.cdc"
+import Dandy from "./Dandy.cdc"
 
 
 pub contract Admin {
@@ -114,14 +114,14 @@ pub contract Admin {
 				self.capability != nil: "Cannot create FIND, capability is not set"
 			}
 
-			Artifact.setViewConverters(from: from, converters: converters)
+			Dandy.setViewConverters(from: from, converters: converters)
 		}
 
-		pub fun createForge(platform: Artifact.MinterPlatform) : @Artifact.Forge {
+		pub fun createForge(platform: Dandy.MinterPlatform) : @Dandy.Forge {
 			pre {
 				self.capability != nil: "Cannot create FIND, capability is not set"
 			}
-			return <- Artifact.createForge(platform:platform)
+			return <- Dandy.createForge(platform:platform)
 		}
 
 		pub fun createVersusArtWithContent(name: String, artist:String, artistAddress:Address, description: String, url: String, type: String, royalty: {String: Art.Royalty}, edition: UInt64, maxEdition: UInt64) : @Art.NFT {

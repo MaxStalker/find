@@ -15,7 +15,7 @@ FIND is priced with inspiration from ENS. 5 FUSD for a name a year. If you want 
  - `go mod tidy`
  - `go run tasks/demo/main.go`
 
-This will start the flow emulator in memory and run a 'storyline' consiting of multiple scripts and transactions. Here a name will be registered, sold and then we will use the browse capabilities in find to inspect and view the different views that Artifacts support
+This will start the flow emulator in memory and run a 'storyline' consiting of multiple scripts and transactions. Here a name will be registered, sold and then we will use the browse capabilities in find to inspect and view the different views that Dandys support
 
 ## Flow Identity
 
@@ -54,7 +54,7 @@ Right now an Identity in FIND is a single user.  It uses the Versus profile to r
 ## TODO
 
  x lease should be a FT.Receiver and delegate to profile for that. 
- x artifacts are tied to a name, royalties go to a name
+ x dandys are tied to a name, royalties go to a name
  x admin should be able to register without paying fusd
   - github actions
   - run test
@@ -64,7 +64,7 @@ Right now an Identity in FIND is a single user.  It uses the Versus profile to r
 ## Serverless functions
 //lookup.find.xzy <- lookup an address
 
-//browse.find.xyz/bjartek/artifacts/1/String -> Content/Type  text/plain    Neo Bike 1 of 3, application/json { "name" : "Neo Bike 1 of 3" } application/html
+//browse.find.xyz/bjartek/dandys/1/String -> Content/Type  text/plain    Neo Bike 1 of 3, application/json { "name" : "Neo Bike 1 of 3" } application/html
 
 
 ## Script to get views

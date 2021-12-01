@@ -3,18 +3,18 @@ import FungibleToken from "../contracts/standard/FungibleToken.cdc"
 import TypedMetadata from "../contracts/TypedMetadata.cdc"
 import Profile from "../contracts/Profile.cdc"
 
-pub contract Artifact: NonFungibleToken {
+pub contract Dandy: NonFungibleToken {
 
-	pub let ArtifactStoragePath: StoragePath
-	pub let ArtifactPublicPath: PublicPath
+	pub let DandyStoragePath: StoragePath
+	pub let DandyPublicPath: PublicPath
 	pub var totalSupply: UInt64
 
 
-	/*store all valid type converters for Artifacts
+	/*store all valid type converters for Dandys
 	This is to be able to make the contract compatible with the forthcomming NFT standard. 
 
-	If a Artifact supports a type with the same Identifier as a key here all the ViewConverters convertTo types are added to the list of available types
-	When resolving a type if the Artifact does not itself support this type check if any viewConverters do
+	If a Dandy supports a type with the same Identifier as a key here all the ViewConverters convertTo types are added to the list of available types
+	When resolving a type if the Dandy does not itself support this type check if any viewConverters do
 	*/
 	access(account) var viewConverters: {String: [{TypedMetadata.ViewConverter}]}
 
@@ -72,8 +72,8 @@ pub contract Artifact: NonFungibleToken {
 
 			//ViewConverter: If there are any viewconverters that add new types that can be resolved add them
 			for v in views {
-				if Artifact.viewConverters.containsKey(v.identifier) {
-					for converter in Artifact.viewConverters[v.identifier]! {
+				if Dandy.viewConverters.containsKey(v.identifier) {
+					for converter in Dandy.viewConverters[v.identifier]! {
 						//I wants sets in cadence...
 						if !views.contains(converter.to){ 
 							views.append(converter.to)
@@ -152,8 +152,8 @@ pub contract Artifact: NonFungibleToken {
 			}
 
 			//Viewconverter: This is an example on how you as the last step in resolveView can check if there are converters for your type and run them
-			for converterValue in Artifact.viewConverters.keys {
-				for converter in Artifact.viewConverters[converterValue]! {
+			for converterValue in Dandy.viewConverters.keys {
+				for converter in Dandy.viewConverters[converterValue]! {
 					if converter.to == type {
 						let value= self.resolveView(converter.from)
 						return converter.convert(value)
@@ -246,8 +246,8 @@ pub contract Artifact: NonFungibleToken {
 			views[s.getType().identifier]=ViewInfo(typ:s.getType(), result: s)
 		}
 
-		let nft <-  create NFT(initID: Artifact.totalSupply, name: name, schemas:views, sharedPointer:nil, minterPlatform: platform)
-		Artifact.totalSupply = Artifact.totalSupply + 1
+		let nft <-  create NFT(initID: Dandy.totalSupply, name: name, schemas:views, sharedPointer:nil, minterPlatform: platform)
+		Dandy.totalSupply = Dandy.totalSupply + 1
 		return <-  nft
 	}
 
@@ -258,13 +258,13 @@ pub contract Artifact: NonFungibleToken {
 			views[s.getType().identifier]=ViewInfo(typ:s.getType(), result: s)
 		}
 
-		let nft <-  create NFT(initID: Artifact.totalSupply, name: name, schemas:views, sharedPointer:sharedPointer, minterPlatform: platform)
-		Artifact.totalSupply = Artifact.totalSupply + 1
+		let nft <-  create NFT(initID: Dandy.totalSupply, name: name, schemas:views, sharedPointer:sharedPointer, minterPlatform: platform)
+		Dandy.totalSupply = Dandy.totalSupply + 1
 		return <-  nft
 	}
 
 	access(account) fun setViewConverters(from: Type, converters: [AnyStruct{TypedMetadata.ViewConverter}]) {
-		Artifact.viewConverters[from.identifier] = converters
+		Dandy.viewConverters[from.identifier] = converters
 	}
 
 	//THis is not used right now but might be here for white label things
@@ -276,12 +276,12 @@ pub contract Artifact: NonFungibleToken {
 		}
 
 		pub fun mintNFT(name: String, schemas: [AnyStruct]) : @NFT {
-			return <- Artifact.mintNFT(platform: self.platform, name: name, schemas: schemas)
+			return <- Dandy.mintNFT(platform: self.platform, name: name, schemas: schemas)
 		}
 
 		//have method to mint without shared
 		pub fun mintNFTWithSharedData(name: String, schemas: [AnyStruct], sharedPointer: Pointer) : @NFT {
-			return <- Artifact.mintNFTWithSharedData(platform: self.platform, name: name, schemas: schemas, sharedPointer: sharedPointer)
+			return <- Dandy.mintNFTWithSharedData(platform: self.platform, name: name, schemas: schemas, sharedPointer: sharedPointer)
 		}
 	}
 
@@ -407,8 +407,8 @@ pub contract Artifact: NonFungibleToken {
 	init() {
 		// Initialize the total supply
 		self.totalSupply=0
-		self.ArtifactPublicPath = /public/artifacts
-		self.ArtifactStoragePath = /storage/artifacts
+		self.DandyPublicPath = /public/dandys
+		self.DandyStoragePath = /storage/dandys
 		self.viewConverters={}
 
 		emit ContractInitialized()

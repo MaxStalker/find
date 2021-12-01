@@ -15,9 +15,9 @@ func main() {
 			UFix64Argument("100.0").
 			RunPrintEventsFull()
 
-		g.TransactionFromFile("buyAddon").SignProposeAndPayAs("find").StringArgument("find").StringArgument("artifact").UFix64Argument("50.0").RunPrintEventsFull()
+		g.TransactionFromFile("buyAddon").SignProposeAndPayAs("find").StringArgument("find").StringArgument("dandy").UFix64Argument("50.0").RunPrintEventsFull()
 
-		g.TransactionFromFile("mintArtifact").SignProposeAndPayAs("find").StringArgument("find").RunPrintEventsFull()
+		g.TransactionFromFile("mintDandy").SignProposeAndPayAs("find").StringArgument("find").RunPrintEventsFull()
 		g.TransactionFromFile("mintArt").
 			SignProposeAndPayAs("find-admin").
 			AccountArgument("find-admin").

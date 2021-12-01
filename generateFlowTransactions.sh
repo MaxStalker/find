@@ -18,11 +18,11 @@ rm -Rf clock*
 rm -Rf registerAdmin*
 rm -Rf mintFusd*
 rm -Rf status*
-rm -Rf mintArtifact*
+rm -Rf mintDandy*
 rm -Rf removeProfile*
 
 gsed -i 's/0xTypedMetadata/0xFIND_ADDRESS/g' *.cdc
-gsed -i 's/0xArtifact/0xFIND_ADDRESS/g' *.cdc
+gsed -i 's/0xDandy/0xFIND_ADDRESS/g' *.cdc
 gsed -i 's/0xProfile/0xVERSUS_ADDRESS/g' *.cdc
 gsed -i 's/0xFlowToken/0xFLOW_TOKEN_ADDRESS/g' *.cdc
 gsed -i 's/0xFUSD/0xFUSD_ADDRESS/g' *.cdc

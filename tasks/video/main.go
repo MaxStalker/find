@@ -110,7 +110,7 @@ func main() {
 	fmt.Scanln()
 	resolveView(g, "A.f8d6e0586b0a20c7.TypedMetadata.Royalties")
 
-	fmt.Println("Another example using finds build in Artifact NFT with first class support for the metadata proposal")
+	fmt.Println("Another example using finds build in Dandy NFT with first class support for the metadata proposal")
 }
 
 func resolveView(g *gwtf.GoWithTheFlow, view string) {

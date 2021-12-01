@@ -4,7 +4,7 @@ import NonFungibleToken from "./standard/NonFungibleToken.cdc"
 import Profile from "./Profile.cdc"
 import Debug from "./Debug.cdc"
 import Clock from "./Clock.cdc"
-import Artifact from "./Artifact.cdc"
+import Dandy from "./Dandy.cdc"
 /*
 
 ///FIND
@@ -388,7 +388,7 @@ pub contract FIND {
 			self.networkWallet=networkWallet
 		}
 
-		access(contract) fun createPlatform(_ name: String) : Artifact.MinterPlatform{
+		access(contract) fun createPlatform(_ name: String) : Dandy.MinterPlatform{
 			//TODO: make it possible to set profile
 
 			let platformCap=FIND.account.getCapability<&{FungibleToken.Receiver}>(/public/VersusProfileFt)
@@ -396,26 +396,26 @@ pub contract FIND {
 				panic("platform cap is not present")
 			}
 
-			return Artifact.MinterPlatform(name:name, platform: platformCap, platformPercentCut: 0.025)
+			return Dandy.MinterPlatform(name:name, platform: platformCap, platformPercentCut: 0.025)
 		}
 
-		pub fun mintArtifact(name: String, nftName: String, schemas: [AnyStruct]) : @Artifact.NFT {
+		pub fun mintDandy(name: String, nftName: String, schemas: [AnyStruct]) : @Dandy.NFT {
 
 			let lease = self.borrow(name)
-			if !lease.addons.containsKey("artifact") {
-				panic("You do not have the artifact addon, buy it first")
+			if !lease.addons.containsKey("dandy") {
+				panic("You do not have the dandy addon, buy it first")
 			}
 
-			return <- Artifact.mintNFT(platform: self.createPlatform(name), name: nftName, schemas: schemas)
+			return <- Dandy.mintNFT(platform: self.createPlatform(name), name: nftName, schemas: schemas)
 		}
 
 		//have method to mint without shared
-		pub fun mintNFTWithSharedData(name: String, nftName: String, schemas: [AnyStruct], sharedPointer: Artifact.Pointer) : @Artifact.NFT {
+		pub fun mintNFTWithSharedData(name: String, nftName: String, schemas: [AnyStruct], sharedPointer: Dandy.Pointer) : @Dandy.NFT {
 			let lease = self.borrow(name)
-			if !lease.addons.containsKey("artifact") {
-				panic("You do not have the artifact addon, buy it first")
+			if !lease.addons.containsKey("dandy") {
+				panic("You do not have the dandy addon, buy it first")
 			}
-			return <- Artifact.mintNFTWithSharedData(platform: self.createPlatform(name), name: nftName, schemas: schemas, sharedPointer: sharedPointer)
+			return <- Dandy.mintNFTWithSharedData(platform: self.createPlatform(name), name: nftName, schemas: schemas, sharedPointer: sharedPointer)
 		}
 
 
@@ -915,7 +915,7 @@ pub contract FIND {
 
 		init(leasePeriod: UFix64, lockPeriod: UFix64, secondaryCut: UFix64, defaultPrice: UFix64, lengthPrices: {Int:UFix64}, wallet:Capability<&{FungibleToken.Receiver}>, publicEnabled:Bool) {
 			self.leasePeriod=leasePeriod
-			self.addonPrices = { "artifact" : 50.0 }
+			self.addonPrices = { "dandy" : 50.0 }
 			self.lockPeriod=lockPeriod
 			self.secondaryCut=secondaryCut
 			self.defaultPrice=defaultPrice

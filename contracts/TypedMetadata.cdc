@@ -11,7 +11,7 @@ pub contract TypedMetadata {
 	}
 
 	/// This struct interface is used on a contract level to convert from one View to another. 
-	/// See Artifact nft for an example on how to convert one type to another
+	/// See Dandy nft for an example on how to convert one type to another
 	pub struct interface ViewConverter {
 		pub let to: Type
 		pub let from: Type

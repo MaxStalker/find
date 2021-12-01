@@ -14,6 +14,6 @@ func main() {
 		UFix64Argument("5.0").
 		RunPrintEventsFull()
 
-	g.TransactionFromFile("mintArtifact").SignProposeAndPayAs("find-admin").AccountArgument("find").RunPrintEventsFull()
+	g.TransactionFromFile("mintDandy").SignProposeAndPayAs("find-admin").AccountArgument("find").RunPrintEventsFull()
 
 }

@@ -34,7 +34,7 @@
 				"mainnet" : "0x1654653399040a61"
 			}
 		},
-		"Artifact": "./contracts/Artifact.cdc",
+		"Dandy": "./contracts/Dandy.cdc",
 		"FIND": "./contracts/FIND.cdc",
 		"Admin": "./contracts/Admin.cdc",
 		"Art": "./contracts/Art.cdc",
@@ -106,7 +106,7 @@
 	"deployments": {
 		"testnet": {
 			"testnet-find": [
-				"Artifact",
+				"Dandy",
 				"TypedMetadata",
 				"FIND",
 				"Clock",
@@ -119,7 +119,7 @@
 		"emulator": {
 			"emulator-account": [
 				"NonFungibleToken",
-				"Artifact",
+				"Dandy",
 				"TypedMetadata",
 				"FIND",
 				"Clock",

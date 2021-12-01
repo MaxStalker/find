@@ -3,7 +3,7 @@ import FUSD from "../contracts/standard/FUSD.cdc"
 import FlowToken from "../contracts/standard/FlowToken.cdc"
 import Profile from "../contracts/Profile.cdc"
 import FIND from "../contracts/FIND.cdc"
-import Artifact from "../contracts/Artifact.cdc"
+import Dandy from "../contracts/Dandy.cdc"
 import TypedMetadata from "../contracts/TypedMetadata.cdc"
 import NonFungibleToken from "../contracts/standard/NonFungibleToken.cdc"
 
@@ -29,13 +29,13 @@ transaction(name: String, amount: UFix64) {
 
 		}
 
-		let artifactCollection = acct.getCapability<&{NonFungibleToken.CollectionPublic}>(Artifact.ArtifactPublicPath)
-		if !artifactCollection.check() {
-			acct.unlink(Artifact.ArtifactPublicPath)
-			destroy <- acct.load<@AnyResource>(from:Artifact.ArtifactStoragePath)
+		let dandyCollection = acct.getCapability<&{NonFungibleToken.CollectionPublic}>(Dandy.DandyPublicPath)
+		if !dandyCollection.check() {
+			acct.unlink(Dandy.DandyPublicPath)
+			destroy <- acct.load<@AnyResource>(from:Dandy.DandyStoragePath)
 
-			acct.save(<- Artifact.createEmptyCollection(), to: Artifact.ArtifactStoragePath)
-			acct.link<&{NonFungibleToken.CollectionPublic}>( Artifact.ArtifactPublicPath, target: Artifact.ArtifactStoragePath)
+			acct.save(<- Dandy.createEmptyCollection(), to: Dandy.DandyStoragePath)
+			acct.link<&{NonFungibleToken.CollectionPublic}>( Dandy.DandyPublicPath, target: Dandy.DandyStoragePath)
 		}
 
 		let bidCollection = acct.getCapability<&FIND.BidCollection{FIND.BidCollectionPublic}>(FIND.BidPublicPath)
@@ -66,7 +66,7 @@ transaction(name: String, amount: UFix64) {
 
 			profile.addWallet(flowWallet)
 			profile.addWallet(fusdWallet)
-			profile.addCollection(Profile.ResourceCollection(name: "artifacts", collection: artifactCollection, type: Type<&{NonFungibleToken.CollectionPublic}>(), tags: ["artifact", "nft"]))
+			profile.addCollection(Profile.ResourceCollection(name: "dandys", collection: dandyCollection, type: Type<&{NonFungibleToken.CollectionPublic}>(), tags: ["dandy", "nft"]))
 			profile.addCollection(Profile.ResourceCollection("FINDLeases",leaseCollection, Type<&FIND.LeaseCollection{FIND.LeaseCollectionPublic}>(), ["find", "leases"]))
 			profile.addCollection(Profile.ResourceCollection("FINDBids", bidCollection, Type<&FIND.BidCollection{FIND.BidCollectionPublic}>(), ["find", "bids"]))
 

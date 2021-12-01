@@ -3,7 +3,7 @@ import FUSD from "../contracts/standard/FUSD.cdc"
 import FlowToken from "../contracts/standard/FlowToken.cdc"
 import FIND from "../contracts/FIND.cdc"
 import Profile from "../contracts/Profile.cdc"
-import Artifact from "../contracts/Artifact.cdc"
+import Dandy from "../contracts/Dandy.cdc"
 import Art from "../contracts/Art.cdc"
 import TypedMetadata from "../contracts/TypedMetadata.cdc"
 import NonFungibleToken from "../contracts/standard/NonFungibleToken.cdc"
@@ -73,19 +73,19 @@ transaction(name: String) {
 		}
 		profile.addCollection(Profile.ResourceCollection( "FINDBids", bidCollection, Type<&FIND.BidCollection{FIND.BidCollectionPublic}>(), ["find", "bids"]))
 
-		let artifactCollection = acct.getCapability<&{NonFungibleToken.CollectionPublic}>(Artifact.ArtifactPublicPath)
-		var artifactType=""
-		if !artifactCollection.check() {
-			acct.unlink(Artifact.ArtifactPublicPath)
-			destroy <- acct.load<@AnyResource>(from:Artifact.ArtifactStoragePath)
+		let dandyCollection = acct.getCapability<&{NonFungibleToken.CollectionPublic}>(Dandy.DandyPublicPath)
+		var dandyType=""
+		if !dandyCollection.check() {
+			acct.unlink(Dandy.DandyPublicPath)
+			destroy <- acct.load<@AnyResource>(from:Dandy.DandyStoragePath)
 
-			let artifactCollection <-Artifact.createEmptyCollection()
-			artifactType=artifactCollection.getType().identifier
+			let dandyCollection <-Dandy.createEmptyCollection()
+			dandyType=dandyCollection.getType().identifier
 
-			acct.save(<- artifactCollection, to: Artifact.ArtifactStoragePath)
-			acct.link<&{NonFungibleToken.CollectionPublic}>( Artifact.ArtifactPublicPath, target: Artifact.ArtifactStoragePath)
+			acct.save(<- dandyCollection, to: Dandy.DandyStoragePath)
+			acct.link<&{NonFungibleToken.CollectionPublic}>( Dandy.DandyPublicPath, target: Dandy.DandyStoragePath)
 		}
-		profile.addCollection(Profile.ResourceCollection(name: artifactType, collection: artifactCollection, type: Type<&{NonFungibleToken.CollectionPublic}>(), tags: ["artifact", "nft"]))
+		profile.addCollection(Profile.ResourceCollection(name: dandyType, collection: dandyCollection, type: Type<&{NonFungibleToken.CollectionPublic}>(), tags: ["dandy", "nft"]))
 
 		//Create versus art collection if it does not exist and add it
 		let artCollectionCap=acct.getCapability<&{NonFungibleToken.CollectionPublic}>(/public/versusArtViewResolver)

@@ -68,11 +68,11 @@ func main() {
 
 	fmt.Scanln()
 	clear()
-	fmt.Println("We buy a 'artifact' addon to be able to mint things and then we mint some artifacts, in this case some example Neo Motorcycles")
+	fmt.Println("We buy a 'forge' addon to be able to mint things and then we mint some nfts, in this case some example Neo Motorcycles")
 	fmt.Println("-----------------------------------------------------------------------------------")
-	g.TransactionFromFile("buyAddon").SignProposeAndPayAs("user1").StringArgument("bjartek").StringArgument("artifact").UFix64Argument("50.0").RunPrintEventsFull()
+	g.TransactionFromFile("buyAddon").SignProposeAndPayAs("user1").StringArgument("bjartek").StringArgument("forge").UFix64Argument("50.0").RunPrintEventsFull()
 
-	g.TransactionFromFile("mintArtifact").SignProposeAndPayAs("user1").StringArgument("bjartek").RunPrintEventsFull()
+	g.TransactionFromFile("mintDandy").SignProposeAndPayAs("user1").StringArgument("bjartek").RunPrintEventsFull()
 
 	fmt.Scanln()
 	clear()
@@ -88,14 +88,14 @@ func main() {
 	fmt.Println()
 	fmt.Println()
 
-	fmt.Println("bjartek has a collection of Artifact NFT, so lets look at what is in there")
+	fmt.Println("bjartek has a collection of Dandy NFT, so lets look at what is in there")
 	fmt.Println("-----------------------------------------------------------------------------------")
 	fmt.Scanln()
-	fmt.Println("find.xyz/bjartek/A.f8d6e0586b0a20c7.Artifact.Collection")
-	result = g.ScriptFromFile("find-ids-profile").AccountArgument("user1").StringArgument("A.f8d6e0586b0a20c7.Artifact.Collection").RunFailOnError()
+	fmt.Println("find.xyz/bjartek/A.f8d6e0586b0a20c7.Dandy.Collection")
+	result = g.ScriptFromFile("find-ids-profile").AccountArgument("user1").StringArgument("A.f8d6e0586b0a20c7.Dandy.Collection").RunFailOnError()
 	fmt.Println(gwtf.CadenceValueToJsonString(result))
-	fmt.Println("find.xyz/bjartek/A.f8d6e0586b0a20c7.Artifact.Collection/1")
-	result = g.ScriptFromFile("find-schemes").AccountArgument("user1").StringArgument("A.f8d6e0586b0a20c7.Artifact.Collection").UInt64Argument(1).RunFailOnError()
+	fmt.Println("find.xyz/bjartek/A.f8d6e0586b0a20c7.Dandy.Collection/1")
+	result = g.ScriptFromFile("find-schemes").AccountArgument("user1").StringArgument("A.f8d6e0586b0a20c7.Dandy.Collection").UInt64Argument(1).RunFailOnError()
 	fmt.Println(gwtf.CadenceValueToJsonString(result))
 
 	fmt.Println("There are a three NFT that has some basic types")
@@ -111,15 +111,15 @@ func main() {
 
 	fmt.Scanln()
 	resolveView(g, "A.f8d6e0586b0a20c7.TypedMetadata.Royalties")
-	resolveView(g, "A.f8d6e0586b0a20c7.Artifact.Minter")
+	resolveView(g, "A.f8d6e0586b0a20c7.Dandy.Minter")
 
 }
 
 func resolveView(g *gwtf.GoWithTheFlow, view string) {
 	fmt.Println()
 	fmt.Println("-------------------------------------------------------")
-	fmt.Printf("find.xyz/bjartek/A.f8d6e0586b0a20c7.Artifact.Collection/0/%s\n", view)
-	result := g.ScriptFromFile("find").AccountArgument("user1").StringArgument("A.f8d6e0586b0a20c7.Artifact.Collection").UInt64Argument(1).StringArgument(view).RunFailOnError()
+	fmt.Printf("find.xyz/bjartek/A.f8d6e0586b0a20c7.Dandy.Collection/0/%s\n", view)
+	result := g.ScriptFromFile("find").AccountArgument("user1").StringArgument("A.f8d6e0586b0a20c7.Dandy.Collection").UInt64Argument(1).StringArgument(view).RunFailOnError()
 	fmt.Println(gwtf.CadenceValueToJsonString(result))
 	fmt.Println()
 

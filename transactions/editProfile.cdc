@@ -3,7 +3,7 @@ import FUSD from "../contracts/standard/FUSD.cdc"
 import FlowToken from "../contracts/standard/FlowToken.cdc"
 import FIND from "../contracts/FIND.cdc"
 import Profile from "../contracts/Profile.cdc"
-import Artifact from "../contracts/Artifact.cdc"
+import Dandy from "../contracts/Dandy.cdc"
 import TypedMetadata from "../contracts/TypedMetadata.cdc"
 import NonFungibleToken from "../contracts/standard/NonFungibleToken.cdc"
 
@@ -39,20 +39,20 @@ transaction(name:String, description: String, avatar: String, tags:[String], all
 		}
 
 
-		let artifactName= Type<@Artifact.Collection>().identifier
-		var hasArtifacts=false
+		let dandyName= Type<@Dandy.Collection>().identifier
+		var hasDandys=false
 		let collections=profile.getCollections()
 		for c in collections {
-			if c.name==artifactName {
-				hasArtifacts=true
+			if c.name==dandyName {
+				hasDandys=true
 			}
 		}
 
-		if !hasArtifacts {
-			acct.save(<- Artifact.createEmptyCollection(), to: Artifact.ArtifactStoragePath)
-			acct.link<&{NonFungibleToken.CollectionPublic}>( Artifact.ArtifactPublicPath, target: Artifact.ArtifactStoragePath)
-			let artifactCollection = acct.getCapability<&{NonFungibleToken.CollectionPublic}>(Artifact.ArtifactPublicPath)
-			profile.addCollection(Profile.ResourceCollection(name: artifactName, collection: artifactCollection, type: Type<&{NonFungibleToken.CollectionPublic}>(), tags: ["artifact", "nft"]))
+		if !hasDandys {
+			acct.save(<- Dandy.createEmptyCollection(), to: Dandy.DandyStoragePath)
+			acct.link<&{NonFungibleToken.CollectionPublic}>( Dandy.DandyPublicPath, target: Dandy.DandyStoragePath)
+			let dandyCollection = acct.getCapability<&{NonFungibleToken.CollectionPublic}>(Dandy.DandyPublicPath)
+			profile.addCollection(Profile.ResourceCollection(name: dandyName, collection: dandyCollection, type: Type<&{NonFungibleToken.CollectionPublic}>(), tags: ["dandy", "nft"]))
 		}
 
 
