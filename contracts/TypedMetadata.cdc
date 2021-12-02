@@ -10,6 +10,14 @@ pub contract TypedMetadata {
 		pub fun resolveView(_ view:Type): AnyStruct
 	}
 
+
+	//A resource interface we give the ViewResolverCollection to signal that they contain resources with view resolvers
+	// Other resources collections that are not NFT can include this interface to be discoverable
+	pub resource interface ViewResolverCollection {
+		pub fun borrowViewResolver(id: UInt64): &{ViewResolver}
+		pub fun getIDs(): [UInt64]
+	}
+
 	/// This struct interface is used on a contract level to convert from one View to another. 
 	/// See Dandy nft for an example on how to convert one type to another
 	pub struct interface ViewConverter {

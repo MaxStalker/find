@@ -226,7 +226,6 @@ pub contract Art: NonFungibleToken {
 			}
 		}
 
-
 		destroy() {
 			destroy self.ownedNFTs
 		}

@@ -171,7 +171,7 @@ pub contract Dandy: NonFungibleToken {
 		pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT
 	}
 
-	pub resource Collection: NonFungibleToken.Provider, NonFungibleToken.Receiver, NonFungibleToken.CollectionPublic, CollectionPublic{
+	pub resource Collection: NonFungibleToken.Provider, NonFungibleToken.Receiver, NonFungibleToken.CollectionPublic, CollectionPublic {
 		// dictionary of NFT conforming tokens
 		// NFT is a resource type with an `UInt64` ID field
 		pub var ownedNFTs: @{UInt64: NonFungibleToken.NFT}
@@ -215,6 +215,11 @@ pub contract Dandy: NonFungibleToken {
 			return &self.ownedNFTs[id] as &NonFungibleToken.NFT
 		}
 
+	/*
+		pub fun borrowViewResolver(id: UInt64): &{TypedMetadata.ViewResolver} {
+			return &self.ownedNFTs[id] as auth &{TypedMetadata.ViewResolver}
+		}
+		*/
 
 		destroy() {
 			destroy self.ownedNFTs 
