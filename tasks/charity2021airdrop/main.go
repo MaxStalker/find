@@ -2,58 +2,57 @@ package main
 
 import (
 	"encoding/csv"
+	"fmt"
 	"log"
 	"math/rand"
 	"os"
 	"time"
 
 	"github.com/bjartek/go-with-the-flow/v2/gwtf"
+	"github.com/onflow/cadence"
+	"github.com/onflow/flow-go-sdk"
 )
 
 func main() {
+	tier := "Gold"
 	g := gwtf.NewGoWithTheFlowMainNet()
-	a := readCsvFile("charity_addresses.csv")
+	//	a := readCsvFile("charity_addresses.csv")
+
+	a := []string{"0x886f3aeaf848c535"}
 
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(a), func(i, j int) { a[i], a[j] = a[j], a[i] })
+	var addresses []cadence.Value
+	for _, key := range a {
+		address := cadence.BytesToAddress(flow.HexToAddress(key).Bytes())
+		addresses = append(addresses, address)
+	}
+	cadenceArray := cadence.NewArray(addresses)
 
-	/*
-		for _, addr := range addresses {
-			value, err := g.ScriptFromFile("hasCharity").RawAccountArgument(addr).RunReturns()
+	thumbnails := map[string]string{
+		"Bronze": "QmcxXHLADpcw5R7xi6WmPjnKAEayK3eiEh85gzjgdzfwN6",
+		"Silver": "QmeNsnmaPJsquCQZwGMsRvHyn5mKDXach5TZsdenEQ6Tsg",
+		"Gold":   "QmbP9KKXEBVLWN66CcN12hNmrqhoE1Nd11MW2yvXr14PbZ",
+	}
 
-			if err != nil {
-				log.Fatal(err)
-			}
+	images := map[string]string{
+		"Bronze": "QmZNCA3hpierS95qiR7p5hS4XRY4KA8zhLTtW7BHbR6Sbp",
+		"Silver": "QmVPrb43RuYopTdB4PAPamscg5rDRrqFt7uAU6vb5zp8FT",
+		"Gold":   "QmT1ZrLgFFiC4Fjg5Sda195B8EkYMbimuacpXn6mTPxTC1",
+	}
 
-			if value.String() == "true" {
-				fmt.Printf("%s=%v", addr, value)
-			}
-		}
-
-		Bronze Tier Cheque Neo Christmas Community Charity
-		Silver Tier Cheque Neo Christmas Community Charity
-		Gold Tier Cheque Neo Christmas Community Charity
-
-		Neo Charity Airdrop 2021 Bronze
-		Neo Charity Airdrop 2021 Silver
-		Neo Charity Airdrop 2021 Gold
-
-		A Bronze tier 3D Cheque to show participation in the Neo Collectibles x Flowverse Charity Auction in 2021.
-		A Silver tier 3D Cheque to show participation in the Neo Collectibles x Flowverse Charity Auction in 2021.
-		A Gold tier 3D Cheque to show participation in the Neo Collectibles x Flowverse Charity Auction in 2021.
-
-	*/
+	title := "Neo Charity Airdrop 2021 %s "
+	description := "A %s tier 3D Cheque to show participation in the Neo Collectibles x Flowverse Charity Auction in 2021.This NFT is from the Neo x FlowVerse Charity Fundraiser 2021."
 
 	g.TransactionFromFile("mintCharity").
 		SignProposeAndPayAs("find-admin").
-		StringArgument("Christmas Tree 2021").
-		StringArgument("ipfs://QmYGZXq39Ugazm9dwHz71fWCgxCf1Yub82y1kz3zkzQMyE").
-		StringArgument("ipfs://QmXs9pejWe1opmDpRdS5cY6Uh7XTb1XApQQ3Dmt61ZwpKx").
+		StringArgument(fmt.Sprintf(title, tier)).
+		StringArgument("ipfs://" + images[tier]).     //image
+		StringArgument("ipfs://" + thumbnails[tier]). //thumbnail
 		StringArgument("https://find.xyz/neo-x-flowverse-community-charity-tree").
-		StringArgument(`This NFT is from the Neo x FlowVerse Charity Fundraiser 2021.
-		It is a 1/1 NFT that was auctioned off with all of the proceeds going to “Women for Afghan Women”.
-		The owner of this NFT is a legend for helping to make the world a better place!`).
-		RawAccountArgument("0x7a1d854cbd4f84b9").
+		StringArgument(tier).
+		StringArgument(fmt.Sprintf(description, tier)).
+		Argument(cadenceArray).
 		Run()
 
 }
