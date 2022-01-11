@@ -10,7 +10,8 @@ transaction(
 	originUrl: String,
 	description: String,
 	tier: String, 
-	recipients: [Address]
+	recipients: [Address],
+	fallback: Address
 ) {
 
 	prepare(account: AuthAccount) {
@@ -22,7 +23,10 @@ transaction(
 		for recipient in recipients {
 			let metadata = {"name" : name.concat(i.toString()).concat("/").concat(maxEdition.toString()), "image" : image, "thumbnail": thumbnail, "originUrl": originUrl, "description":description, "edition": i.toString(), "maxEdition" :  maxEdition.toString(), "rarity" : tier }
 
-			let receiverCap= getAccount(recipient).getCapability<&{NonFungibleToken.CollectionPublic}>(CharityNFT.CollectionPublicPath)
+			var receiverCap= getAccount(recipient).getCapability<&{NonFungibleToken.CollectionPublic}>(CharityNFT.CollectionPublicPath)
+			if !receiverCap.check() {
+				receiverCap= getAccount(fallback).getCapability<&{NonFungibleToken.CollectionPublic}>(CharityNFT.CollectionPublicPath)
+			}
 			client.mintCharity(metadata: metadata, recipient: receiverCap)
 
 			i=i+1
