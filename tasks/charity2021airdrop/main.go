@@ -49,7 +49,7 @@ func main() {
 		StringArgument(fmt.Sprintf(title, tier)).
 		StringArgument("ipfs://" + images[tier]).     //image
 		StringArgument("ipfs://" + thumbnails[tier]). //thumbnail
-		StringArgument("https://find.xyz/neo-x-flowverse-community-charity-tree").
+		StringArgument("ipfs://" + images[tier]).     //image
 		StringArgument(tier).
 		StringArgument(fmt.Sprintf(description, tier)).
 		Argument(cadenceArray).
